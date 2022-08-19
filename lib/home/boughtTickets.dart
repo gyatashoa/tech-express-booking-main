@@ -57,7 +57,6 @@ class _BoughtTicketsState extends State<BoughtTickets> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TicketAppBar(),
             const Text(
               "Bought Tickets",
               style: TextStyle(
@@ -74,8 +73,11 @@ class _BoughtTicketsState extends State<BoughtTickets> {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => const TripTicketPage(),),);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const TripTicketPage(),
+                              ),
+                            );
                           },
                           child: Card(
                             elevation: 7.8,

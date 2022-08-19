@@ -4,6 +4,8 @@ import 'package:tech_express_app/home/mainpage.dart';
 import 'package:tech_express_app/home/trip_booking.dart';
 import 'package:tech_express_app/home/trips/trip_ticket_page.dart';
 import 'package:tech_express_app/utils/constants.dart';
+import 'package:tech_express_app/widget/appbar_card.dart';
+import 'package:tech_express_app/widget/drawer.dart';
 import 'package:unicons/unicons.dart';
 
 import 'boughtTickets.dart';
@@ -34,8 +36,9 @@ class _HomepageState extends State<Homepage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const Drawer(),
       backgroundColor: bgColor,
+      appBar: const TicketAppBar(),
+      drawer: const UserDrawer(),
       body: TabBarView(
         children: const [
           Mainpage(),

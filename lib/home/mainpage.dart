@@ -21,14 +21,13 @@ class Mainpage extends StatelessWidget {
         padding: const EdgeInsets.only(
           right: 25,
           left: 25,
-          top: 30,
         ),
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              const TicketAppBar(),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 30),
+                padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Container(
                   width: _width,
                   height: _height * 0.185,

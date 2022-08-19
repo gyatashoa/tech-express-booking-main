@@ -48,108 +48,102 @@ class _TripsBookingState extends State<TripsBooking> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const TicketAppBar(),
-              Padding(
-                padding: const EdgeInsets.only(top: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on_outlined,
-                                  color: Colors.redAccent,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.redAccent,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'From',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontFamily: 'Poppins-Regular',
+                                          fontSize: 14),
+                                    ),
+                                    Text(
+                                      'Kumasi',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Poppins-Medium',
+                                          fontSize: 14),
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        'From',
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            fontFamily: 'Poppins-Regular',
-                                            fontSize: 14),
-                                      ),
-                                      Text(
-                                        'Kumasi',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontFamily: 'Poppins-Medium',
-                                            fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  color: Colors.green,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        'To',
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            fontFamily: 'Poppins-Regular',
-                                            fontSize: 14),
-                                      ),
-                                      Text(
-                                        'Achimota',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontFamily: 'Poppins-Medium',
-                                            fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE4EDF0),
-                        borderRadius: BorderRadius.circular(8),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      child: Image.asset(
-                        'assets/pngs/updown.png',
-                        color: const Color(0xFF005248),
-                        height: 10,
-                        width: 10,
+                      const SizedBox(
+                        height: 20,
                       ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.green,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'To',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontFamily: 'Poppins-Regular',
+                                          fontSize: 14),
+                                    ),
+                                    Text(
+                                      'Achimota',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Poppins-Medium',
+                                          fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE4EDF0),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: Image.asset(
+                      'assets/pngs/updown.png',
+                      color: const Color(0xFF005248),
+                      height: 10,
+                      width: 10,
+                    ),
+                  ),
+                ],
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
