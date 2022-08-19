@@ -1,17 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tech_express_app/home/homepage.dart';
 import 'package:tech_express_app/onboarding_screen/onboarding_page.dart';
 import 'package:tech_express_app/utils/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
-void main()async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  final bool isLoggedIn;
 
   // This widget is the root of your application.
   @override
@@ -29,7 +32,7 @@ class MyApp extends StatelessWidget {
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
       ),
-      home: const OnboardingScreen(),
+      home: isLoggedIn ? const Homepage() : const OnboardingScreen(),
     );
   }
 }

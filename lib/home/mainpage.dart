@@ -58,26 +58,31 @@ class Mainpage extends StatelessWidget {
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const TripTicketPage(),),);
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TripTicketPage(),
+                                  ),
+                                );
                               },
                               child: Container(
-                                height: 38,
+                                // height: 38,
                                 width: 150,
                                 decoration: BoxDecoration(
                                   color: deepGreen,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Center(
-                                    child: Text(
-                                  "Book now",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                      fontFamily: 'Poppins-Light'),
-                                )),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(4.0),
+                                  child: Center(
+                                      child: Text(
+                                    "Book now",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        fontFamily: 'Poppins-Light'),
+                                  )),
+                                ),
                               ),
                             ),
                           ),
@@ -657,4 +662,3 @@ class Mainpage extends StatelessWidget {
     );
   }
 }
-
