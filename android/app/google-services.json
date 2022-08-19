@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "910691690095",
+    "project_id": "tech-express-app",
+    "storage_bucket": "tech-express-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910691690095:android:a21aa503c7f9cac6a08f9a",
+        "android_client_info": {
+          "package_name": "com.example.tech_express_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "910691690095-d1g46egg53ikui88qkh25mmk4fc665gp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQnd137I2Ee0kRLGZfbsHpKNIKJYI9kbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "910691690095-d1g46egg53ikui88qkh25mmk4fc665gp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
