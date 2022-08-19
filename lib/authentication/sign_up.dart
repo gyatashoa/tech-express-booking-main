@@ -4,10 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_express_app/authentication/login_page.dart';
 import 'package:tech_express_app/authentication/userCredential.dart';
-import 'package:tech_express_app/home/homepage.dart';
+import 'package:tech_express_app/widget/custom_textfield.dart';
 
 import '../utils/constants.dart';
-import '../widget/authWedget.dart';
 
 class Signup_Screen extends StatefulWidget {
   const Signup_Screen({Key? key}) : super(key: key);
@@ -17,7 +16,6 @@ class Signup_Screen extends StatefulWidget {
 }
 
 class _Signup_ScreenState extends State<Signup_Screen> {
-
   final keyForm = GlobalKey<FormState>();
 
   bool isLoading = false;
@@ -81,11 +79,10 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                         const SizedBox(
                           height: 15,
                         ),
-                        buildTextField(
-                          context,
+                        CustomTextField(
                           nameController,
                           CupertinoIcons.person,
-                          "User Name",
+                          "Full Name",
                           false,
                           false,
                         ),
@@ -102,14 +99,9 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                         const SizedBox(
                           height: 15,
                         ),
-                        buildTextField(
-                          context,
-                          emailController,
-                          CupertinoIcons.mail,
-                          "email",
-                          false,
-                          true,
-                        ),
+                        CustomTextField(emailController, CupertinoIcons.mail,
+                            "email", false, true,
+                            type: TextInputType.emailAddress),
                         const SizedBox(
                           height: 15,
                         ),
@@ -123,14 +115,9 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                         const SizedBox(
                           height: 15,
                         ),
-                        buildTextField(
-                          context,
-                          mobileController,
-                          CupertinoIcons.phone,
-                          "mobile number",
-                          false,
-                          false,
-                        ),
+                        CustomTextField(mobileController, CupertinoIcons.phone,
+                            "mobile number", false, false,
+                            type: TextInputType.phone),
                         const SizedBox(
                           height: 15,
                         ),
@@ -144,14 +131,9 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                         const SizedBox(
                           height: 15,
                         ),
-                        buildTextField(
-                          context,
-                          passController,
-                          CupertinoIcons.lock_circle,
-                          "password",
-                          true,
-                          false,
-                        ),
+                        CustomTextField(passController,
+                            CupertinoIcons.lock_circle, "password", true, false,
+                            type: TextInputType.visiblePassword),
                         const SizedBox(
                           height: 15,
                         ),
@@ -180,14 +162,20 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                           padding: const EdgeInsets.symmetric(vertical: 50.0),
                           child: Center(
                             child: GestureDetector(
-                              onTap: () {
-                                Auth().SignUpAuth(
+                              onTap: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                await Auth().signUpAuth(
                                     context,
                                     keyForm,
                                     nameController.text,
                                     emailController.text,
                                     mobileController.text,
                                     passController.text);
+                                setState(() {
+                                  isLoading = false;
+                                });
                               },
                               child: Container(
                                 height: 60,
@@ -202,14 +190,16 @@ class _Signup_ScreenState extends State<Signup_Screen> {
                                         spreadRadius: 3),
                                   ],
                                 ),
-                                child: const Center(
-                                    child: Text(
-                                  "Sign Up",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                      fontFamily: 'Poppins-Light'),
-                                )),
+                                child: Center(
+                                    child: isLoading
+                                        ? const CircularProgressIndicator()
+                                        : const Text(
+                                            "Sign Up",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                                fontFamily: 'Poppins-Light'),
+                                          )),
                               ),
                             ),
                           ),

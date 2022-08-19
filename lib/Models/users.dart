@@ -1,13 +1,9 @@
 class UserModel {
   String? uid;
-  String? email;
-  String? username;
   String? number;
 
   UserModel({
     this.uid,
-    this.email,
-    this.username,
     this.number,
   });
 
@@ -15,8 +11,6 @@ class UserModel {
   factory UserModel.fromJson(map) {
     return UserModel(
       uid: map['uid'],
-      email: map['email'],
-      username: map['username'],
       number: map['number'],
     );
   }
@@ -24,9 +18,6 @@ class UserModel {
   //sending data to the server
   Map<String, dynamic> toMap() {
     return {
-      'uid': uid,
-      'email': email,
-      'username': username,
       'number': number,
     };
   }

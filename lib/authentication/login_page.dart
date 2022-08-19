@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_express_app/authentication/sign_up.dart';
 import 'package:tech_express_app/authentication/userCredential.dart';
+import 'package:tech_express_app/widget/custom_textfield.dart';
 import '../utils/constants.dart';
-import '../widget/authWedget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -73,14 +73,9 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(
                         height: 15,
                       ),
-                      buildTextField(
-                        context,
-                        emailController,
-                        CupertinoIcons.mail,
-                        "email",
-                        false,
-                        true,
-                      ),
+                      CustomTextField(emailController, CupertinoIcons.mail,
+                          "email", false, true,
+                          type: TextInputType.emailAddress),
                       const SizedBox(
                         height: 15,
                       ),
@@ -94,14 +89,9 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(
                         height: 15,
                       ),
-                      buildTextField(
-                        context,
-                        passController,
-                        CupertinoIcons.lock_circle,
-                        "password",
-                        true,
-                        false,
-                      ),
+                      CustomTextField(passController,
+                          CupertinoIcons.lock_circle, "password", true, false,
+                          type: TextInputType.visiblePassword),
                       const SizedBox(
                         height: 15,
                       ),

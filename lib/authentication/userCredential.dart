@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../Home/Homepage.dart';
-import '../Home/mainpage.dart';
 import '../Models/users.dart';
 
 class Auth {
@@ -22,22 +21,20 @@ class Auth {
   }
 
   //creating account
-  void createAccount(
-    String username,
-    String number,
-  ) async {
-    userModel.uid = FirebaseAuth.instance.currentUser!.uid;
-    userModel.email = FirebaseAuth.instance.currentUser!.email;
-    userModel.username = username;
-    userModel.number = number;
+  void updateAccount(String username, String number, String uid) async {
+    await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
+    _updatePhoneNumber(uid, number);
+  }
+
+  Future _updatePhoneNumber(String uid, String phoneNumber) async {
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(userModel.uid)
-        .set(userModel.toMap());
+        .doc(uid)
+        .set(UserModel(number: phoneNumber).toMap());
   }
 
   //SignUp
-  void SignUpAuth(
+  Future signUpAuth(
     BuildContext context,
     GlobalKey<FormState> keyForm,
     String username,
@@ -46,31 +43,42 @@ class Auth {
     String pass,
   ) async {
     if (keyForm.currentState!.validate()) {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: pass)
-          .then((uid) {
-        createAccount(
-          username,
-          number,
-        );
-        AwesomeDialog(
+      try {
+        await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: pass)
+            .then((uid) {
+          updateAccount(username, number, uid.user!.uid);
+        });
+        await AwesomeDialog(
           context: context,
           dialogType: DialogType.SUCCES,
           animType: AnimType.BOTTOMSLIDE,
           title: 'Account Created',
           desc: 'Account Successfully Created',
           btnOkOnPress: () {},
-        ).show();
-      }).catchError((e) {
+        ).show().then((value) => Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const Homepage()),
+            (route) => false));
+      } on FirebaseAuthException catch (e) {
         AwesomeDialog(
           context: context,
           dialogType: DialogType.WARNING,
           animType: AnimType.BOTTOMSLIDE,
           title: 'Invalid Authentication',
-          desc: '$e',
+          desc: '${e.message}',
           btnOkOnPress: () {},
         ).show();
-      });
+      } on Exception {
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.WARNING,
+          animType: AnimType.BOTTOMSLIDE,
+          title: 'Invalid Authentication',
+          desc: 'Error creating account',
+          btnOkOnPress: () {},
+        ).show();
+      }
     } else {
       AwesomeDialog(
         context: context,
@@ -148,7 +156,7 @@ class Auth {
   }
 
   //signout user
-  static Future<void> signout({required BuildContext context}) async {
+  static Future<void> signout() async {
     await FirebaseAuth.instance.signOut();
   }
 }
