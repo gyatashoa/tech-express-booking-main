@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tech_express_app/Models/location.dart';
 import 'package:tech_express_app/data/location.dart';
-import 'package:tech_express_app/home/payment_platform.dart';
+import 'package:tech_express_app/widget/comfort_chip.dart';
 import 'package:tech_express_app/widget/location_selection_widget.dart';
 import 'package:tech_express_app/widget/location_widget.dart';
+import 'package:tech_express_app/widget/time_selection_widget.dart';
 import '../utils/constants.dart';
+import '../widget/payment_method_widget.dart';
 
 class TripsBooking extends StatefulWidget {
   const TripsBooking({Key? key}) : super(key: key);
@@ -15,21 +17,53 @@ class TripsBooking extends StatefulWidget {
 
 class _TripsBookingState extends State<TripsBooking> {
   final bookSeat = TextEditingController();
-  int currentIndex = 0;
+  int currentBusType = 0;
 
   double total = 50.0;
   String? fromLocation;
   String? toLocation;
   late DateTime date;
+  late List<String> buses;
+  String? arrivalDepTime;
 
   void _onSelectSeat() {
     // showDialog(context: context, builder: (_) => const AlertDialog());
+  }
+
+  void _settingModalBottomSheet() {
+    showModalBottomSheet(
+        context: context, builder: (_) => const PaymentMethodWidget());
+  }
+
+  void onComfortChipTapped(value) {
+    setState(() {
+      currentBusType = value;
+      if (currentBusType == 1) {
+        total = 30;
+      } else if (currentBusType == 2) {
+        total = 20.50;
+      } else if (currentBusType == 3) {
+        total = 35.50;
+      } else {
+        total = 50.00;
+      }
+    });
+  }
+
+  void _onChangeTime() async {
+    String? res = await showModalBottomSheet(
+        context: context, builder: (_) => const TimeSelectionWidget());
+    if (res == null) return;
+    setState(() {
+      arrivalDepTime = res;
+    });
   }
 
   @override
   void initState() {
     super.initState();
     date = DateTime.now();
+    buses = ['VVIP', 'STC', 'Ford', 'VIP'];
   }
 
   void _onSelectDate() async {
@@ -102,7 +136,7 @@ class _TripsBookingState extends State<TripsBooking> {
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 35,
-          vertical: 40,
+          vertical: 20,
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -207,38 +241,41 @@ class _TripsBookingState extends State<TripsBooking> {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Arrival - Departure time",
                         style: TextStyle(
                             fontFamily: 'Poppins-Regular',
                             color: Colors.grey,
                             fontSize: 13),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Text(
-                        "12:00pm - 12:45pm",
-                        style: TextStyle(
+                        arrivalDepTime ?? 'Please select a time',
+                        style: const TextStyle(
                             fontFamily: 'Poppins-Regular',
                             color: Colors.black,
                             fontSize: 18),
                       ),
                     ],
                   ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE4EDF0),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.asset(
-                      'assets/pngs/clock.png',
-                      color: const Color(0xFF005248),
-                      height: 10,
-                      width: 10,
+                  InkWell(
+                    onTap: _onChangeTime,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE4EDF0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.asset(
+                        'assets/pngs/clock.png',
+                        color: const Color(0xFF005248),
+                        height: 10,
+                        width: 10,
+                      ),
                     ),
                   ),
                 ],
@@ -263,14 +300,16 @@ class _TripsBookingState extends State<TripsBooking> {
               SingleChildScrollView(
                 child: SizedBox(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      comfortTap('VVIP', 0),
-                      comfortTap('STC', 1),
-                      comfortTap('Ford', 2),
-                      comfortTap('VIP', 3),
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: buses
+                          .asMap()
+                          .entries
+                          .map((e) => ComfortChip(
+                              currentIndex: currentBusType,
+                              index: e.key,
+                              fn: () => onComfortChipTapped(e.key),
+                              name: e.value))
+                          .toList()),
                 ),
               ),
               const Padding(
@@ -410,7 +449,7 @@ class _TripsBookingState extends State<TripsBooking> {
               Padding(
                 padding: const EdgeInsets.only(left: 10.0, top: 35),
                 child: GestureDetector(
-                  onTap: () => _settingModalBottomSheet(context),
+                  onTap: _settingModalBottomSheet,
                   child: Container(
                     height: 48,
                     width: 230,
@@ -431,83 +470,6 @@ class _TripsBookingState extends State<TripsBooking> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _settingModalBottomSheet(context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return Container(
-            color: const Color(0xFFE4EDF0),
-            child: Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.mobile_friendly),
-                  title: const Text("Mobile Money"),
-                  subtitle:
-                      const Text("MTN Momo / Voda Cash / AirtelTigo Cash"),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MomoCardPayment(),
-                    ),
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.payment_outlined),
-                  title: const Text("Credit Card"),
-                  subtitle: const Text("Visa / Master"),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const CreditCardPay(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  Widget comfortTap(String name, int value) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          currentIndex = value;
-          if (currentIndex == 1) {
-            total = 30;
-          } else if (currentIndex == 2) {
-            total = 20.50;
-          } else if (currentIndex == 3) {
-            total = 35.50;
-          } else {
-            total = 50.00;
-          }
-        });
-      },
-      child: AnimatedContainer(
-        decoration: currentIndex == value
-            ? BoxDecoration(
-                color: const Color(0xFFE4EDF0),
-                borderRadius: BorderRadius.circular(15),
-              )
-            : const BoxDecoration(),
-        duration: const Duration(milliseconds: 100),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              name,
-              style: TextStyle(
-                  fontFamily: 'Poppins-Regular',
-                  color: currentIndex == value
-                      ? const Color(0xFF005248)
-                      : Colors.black,
-                  fontSize: 18),
-            ),
           ),
         ),
       ),
