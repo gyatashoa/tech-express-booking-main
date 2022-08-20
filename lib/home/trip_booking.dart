@@ -1,10 +1,10 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:tech_express_app/Models/location.dart';
+import 'package:tech_express_app/data/location.dart';
 import 'package:tech_express_app/home/payment_platform.dart';
-
+import 'package:tech_express_app/widget/location_selection_widget.dart';
+import 'package:tech_express_app/widget/location_widget.dart';
 import '../utils/constants.dart';
-import '../widget/appbar_card.dart';
 
 class TripsBooking extends StatefulWidget {
   const TripsBooking({Key? key}) : super(key: key);
@@ -18,6 +18,39 @@ class _TripsBookingState extends State<TripsBooking> {
   int currentIndex = 0;
 
   double total = 50.0;
+  String? fromLocation;
+  String? toLocation;
+  late DateTime date;
+
+  void _onSelectSeat() {
+    // showDialog(context: context, builder: (_) => const AlertDialog());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    date = DateTime.now();
+  }
+
+  void _onSelectDate() async {
+    DateTime? result = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 20)),
+        builder: (ctx, child) {
+          return Theme(
+            child: child!,
+            data: Theme.of(context).copyWith(
+                colorScheme:
+                    const ColorScheme.light(primary: Color(0xFF005248))),
+          );
+        });
+    if (result == null) return;
+    setState(() {
+      date = result;
+    });
+  }
 
   void ChangePrice() {
     int price = 1;
@@ -35,6 +68,32 @@ class _TripsBookingState extends State<TripsBooking> {
     });
   }
 
+  Future<void> onChooseLocation(Location location) async {
+    if (location == Location.FROM) {
+      List<String> data = locationData.toList();
+      if (toLocation != null) {
+        data.remove(toLocation);
+      }
+      String? result = await showSearch(
+          context: context, delegate: LocationSelection(locations: data));
+      if (result == null) return;
+      setState(() {
+        fromLocation = result;
+      });
+      return;
+    }
+    List<String> data = locationData.toList();
+    if (fromLocation != null) {
+      data.remove(fromLocation);
+    }
+    String? result = await showSearch(
+        context: context, delegate: LocationSelection(locations: data));
+    if (result == null) return;
+    setState(() {
+      toLocation = result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.height;
@@ -46,7 +105,9 @@ class _TripsBookingState extends State<TripsBooking> {
           vertical: 40,
         ),
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -54,79 +115,17 @@ class _TripsBookingState extends State<TripsBooking> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on_outlined,
-                                color: Colors.redAccent,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'From',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontFamily: 'Poppins-Regular',
-                                          fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Kumasi',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'Poppins-Medium',
-                                          fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      LocationWidget(
+                          onTap: onChooseLocation,
+                          location: fromLocation,
+                          type: Location.FROM),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.green,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'To',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontFamily: 'Poppins-Regular',
-                                          fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Achimota',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'Poppins-Medium',
-                                          fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      LocationWidget(
+                          onTap: onChooseLocation,
+                          location: toLocation,
+                          type: Location.TO),
                     ],
                   ),
                   Container(
@@ -157,38 +156,41 @@ class _TripsBookingState extends State<TripsBooking> {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Date",
                         style: TextStyle(
                             fontFamily: 'Poppins-Regular',
                             color: Colors.grey,
                             fontSize: 13),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Text(
-                        "6 /09 /2020",
-                        style: TextStyle(
+                        date.getDate,
+                        style: const TextStyle(
                             fontFamily: 'Poppins-Regular',
                             color: Colors.black,
                             fontSize: 18),
                       ),
                     ],
                   ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE4EDF0),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.asset(
-                      'assets/pngs/cal.png',
-                      color: const Color(0xFF005248),
-                      height: 10,
-                      width: 10,
+                  InkWell(
+                    onTap: _onSelectDate,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE4EDF0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.asset(
+                        'assets/pngs/cal.png',
+                        color: const Color(0xFF005248),
+                        height: 10,
+                        width: 10,
+                      ),
                     ),
                   ),
                 ],
@@ -248,35 +250,28 @@ class _TripsBookingState extends State<TripsBooking> {
                   color: Colors.grey,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              const Text(
+                "Choose comfort",
+                style: TextStyle(
+                    fontFamily: 'Poppins-Regular',
+                    color: Colors.grey,
+                    fontSize: 13),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SingleChildScrollView(
+                child: SizedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Choose comfort",
-                        style: TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.grey,
-                            fontSize: 13),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      SingleChildScrollView(
-                        child: Row(
-                          children: [
-                            comfortTap('VVIP', 0),
-                            comfortTap('STC', 1),
-                            comfortTap('Ford', 2),
-                            comfortTap('VIP', 3),
-                          ],
-                        ),
-                      ),
+                      comfortTap('VVIP', 0),
+                      comfortTap('STC', 1),
+                      comfortTap('Ford', 2),
+                      comfortTap('VIP', 3),
                     ],
                   ),
-                ],
+                ),
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
@@ -285,27 +280,25 @@ class _TripsBookingState extends State<TripsBooking> {
                   color: Colors.grey,
                 ),
               ),
+              const Text(
+                "Select you seat",
+                style: TextStyle(
+                    fontFamily: 'Poppins-Regular',
+                    color: Colors.grey,
+                    fontSize: 13),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Select you seat",
-                        style: TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.grey,
-                            fontSize: 13),
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 5),
-                      Container(
-                        height: 45,
-                        width: MediaQuery.of(context).size.width - 110,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextFormField(
                           controller: bookSeat,
                           textInputAction: TextInputAction.none,
@@ -322,20 +315,26 @@ class _TripsBookingState extends State<TripsBooking> {
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE4EDF0),
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Image.asset(
-                      'assets/pngs/seat.png',
-                      color: const Color(0xFF005248),
-                      height: 10,
-                      width: 10,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                    onTap: _onSelectSeat,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE4EDF0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.asset(
+                        'assets/pngs/seat.png',
+                        color: const Color(0xFF005248),
+                        height: 10,
+                        width: 10,
+                      ),
                     ),
                   ),
                 ],
@@ -489,18 +488,16 @@ class _TripsBookingState extends State<TripsBooking> {
           }
         });
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5.0),
-        child: AnimatedContainer(
-          height: 30,
-          width: currentIndex == value ? 80 : 60,
-          decoration: currentIndex == value
-              ? BoxDecoration(
-                  color: const Color(0xFFE4EDF0),
-                  borderRadius: BorderRadius.circular(15),
-                )
-              : const BoxDecoration(),
-          duration: const Duration(milliseconds: 100),
+      child: AnimatedContainer(
+        decoration: currentIndex == value
+            ? BoxDecoration(
+                color: const Color(0xFFE4EDF0),
+                borderRadius: BorderRadius.circular(15),
+              )
+            : const BoxDecoration(),
+        duration: const Duration(milliseconds: 100),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Center(
             child: Text(
               name,
@@ -516,4 +513,8 @@ class _TripsBookingState extends State<TripsBooking> {
       ),
     );
   }
+}
+
+extension on DateTime {
+  String get getDate => '$day/${month < 10 ? '0$month' : month}/$year';
 }
