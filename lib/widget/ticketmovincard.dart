@@ -1,80 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:tech_express_app/Models/predefined_trip.dart';
 
 import '../home/booking_details.dart';
 import '../utils/constants.dart';
 
-class TicketModel {
-  final String busImage;
-  final String price;
-  final String endtime;
-  final String startTime;
-  final String date;
-  final String from;
-  final String to;
-  final String typeCar;
-  final String aviableSeat;
-
-  TicketModel( 
-      {required this.busImage,
-      required this.price,
-      required this.endtime,
-      required this.startTime,
-      required this.date,
-      required this.from,
-      required this.to,
-      required this.typeCar,
-      required this.aviableSeat});
-}
-
-List<TicketModel> listOfaviableTicket = [
-  TicketModel(
-      busImage: "assets/images/bus1.png",
-      endtime: "10:30",
-      price: "50",
-      startTime: "6:30",
-      date: "24/09/2022",
-      from: "Accra",
-      to: "Kumasi",
-      typeCar: "VVIP",
-      aviableSeat: "1"),
-  TicketModel(
-      busImage: "assets/images/bus2.png",
-      endtime: "10:30",
-      price: "25.34",
-      startTime: "6:30",
-      date: "23/09/2022",
-      from: "Kumasi",
-      to: "Takoradi",
-      typeCar: "STC",
-      aviableSeat: "9"),
-  TicketModel(
-      busImage: "assets/images/bus4.png",
-      endtime: "02:30",
-      price: "25.0",
-      startTime: "10:30",
-      date: "03/09/2022",
-      from: "Accra",
-      to: "Takoradi",
-      typeCar: "Ford",
-      aviableSeat: "5"),
-  TicketModel(
-      busImage: "assets/images/B3.png",
-      endtime: "10:30",
-      price: "30.0",
-      startTime: "04:30",
-      date: "03/09/2022",
-      from: "Accra",
-      to: "Takoradi",
-      typeCar: "Ford",
-      aviableSeat: "2"),
-];
-
 class TicketMovingCard extends StatelessWidget {
-  final TicketModel ticketModel;
+  final PredefinedTrip predefinedTrip;
   const TicketMovingCard({
     Key? key,
     required double width,
-    required this.ticketModel,
+    required this.predefinedTrip,
   })  : _width = width,
         super(key: key);
 
@@ -101,7 +36,7 @@ class TicketMovingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
-              ticketModel.busImage,
+              predefinedTrip.type.busImage,
               height: 150,
               width: 200,
             ),
@@ -118,7 +53,7 @@ class TicketMovingCard extends StatelessWidget {
                         fontSize: 14),
                   ),
                   Text(
-                    '${ticketModel.startTime}pm',
+                    predefinedTrip.departure.split('-').last.trim(),
                     style: const TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins-Bold',
@@ -149,7 +84,7 @@ class TicketMovingCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    ticketModel.from,
+                    predefinedTrip.from,
                     style: const TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins-Bold',
@@ -179,7 +114,7 @@ class TicketMovingCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    ticketModel.to,
+                    predefinedTrip.to,
                     style: const TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins-Bold',
@@ -188,11 +123,11 @@ class TicketMovingCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Text(
-                '${ticketModel.aviableSeat} seats available',
-                style: const TextStyle(
+                '5 seats available',
+                style: TextStyle(
                     color: Colors.grey,
                     fontFamily: 'Poppins-Regular',
                     fontSize: 10),
@@ -203,7 +138,9 @@ class TicketMovingCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BookingDetails(ticketModel: ticketModel),
+                    builder: (context) => BookingDetails(
+                      predefinedTrip: predefinedTrip,
+                    ),
                   ),
                 );
               },

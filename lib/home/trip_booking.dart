@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tech_express_app/Models/bus_type.dart';
 import 'package:tech_express_app/Models/location.dart';
+import 'package:tech_express_app/Models/predefined_trip.dart';
 import 'package:tech_express_app/data/location.dart';
 import 'package:tech_express_app/utils/seat_check_utils.dart';
 import 'package:tech_express_app/widget/comfort_chip.dart';
@@ -15,7 +16,8 @@ import '../widget/payment_method_widget.dart';
 import '../widget/purchase_btn.dart';
 
 class TripsBooking extends StatefulWidget {
-  const TripsBooking({Key? key}) : super(key: key);
+  final PredefinedTrip? predefinedTrip;
+  const TripsBooking({Key? key, this.predefinedTrip}) : super(key: key);
 
   @override
   State<TripsBooking> createState() => _TripsBookingState();
@@ -99,6 +101,12 @@ class _TripsBookingState extends State<TripsBooking> {
     currentBusType = buses.first;
     bookSeat = TextEditingController(text: '');
     _isCheckingSeat = false;
+    if (widget.predefinedTrip != null) {
+      toLocation = widget.predefinedTrip?.to;
+      fromLocation = widget.predefinedTrip?.from;
+      arrivalDepTime = widget.predefinedTrip?.departure;
+      currentBusType = widget.predefinedTrip!.type;
+    }
   }
 
   void _onSelectDate() async {
