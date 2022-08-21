@@ -1,12 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:tech_express_app/Models/bus_type.dart';
 import 'package:tech_express_app/Models/location.dart';
 import 'package:tech_express_app/data/location.dart';
+import 'package:tech_express_app/utils/seat_check_utils.dart';
 import 'package:tech_express_app/widget/comfort_chip.dart';
 import 'package:tech_express_app/widget/location_selection_widget.dart';
 import 'package:tech_express_app/widget/location_widget.dart';
+import 'package:tech_express_app/widget/ticket_price_widget.dart';
 import 'package:tech_express_app/widget/time_selection_widget.dart';
 import '../utils/constants.dart';
 import '../widget/payment_method_widget.dart';
+import '../widget/purchase_btn.dart';
 
 class TripsBooking extends StatefulWidget {
   const TripsBooking({Key? key}) : super(key: key);
@@ -16,38 +22,64 @@ class TripsBooking extends StatefulWidget {
 }
 
 class _TripsBookingState extends State<TripsBooking> {
-  final bookSeat = TextEditingController();
-  int currentBusType = 0;
+  late TextEditingController bookSeat;
+  late BusType currentBusType;
 
   double total = 50.0;
   String? fromLocation;
   String? toLocation;
   late DateTime date;
-  late List<String> buses;
+  late List<BusType> buses;
   String? arrivalDepTime;
-
-  void _onSelectSeat() {
-    // showDialog(context: context, builder: (_) => const AlertDialog());
-  }
+  bool? _isSeatAvailable;
+  late bool _isCheckingSeat;
 
   void _settingModalBottomSheet() {
-    showModalBottomSheet(
-        context: context, builder: (_) => const PaymentMethodWidget());
+    String? res = checkForm();
+    if (res == null) {
+      showModalBottomSheet(
+          context: context, builder: (_) => const PaymentMethodWidget());
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Row(
+      children: [
+        const Icon(
+          Icons.error,
+          color: Colors.red,
+        ),
+        Text(res)
+      ],
+    )));
   }
 
-  void onComfortChipTapped(value) {
+  String? checkForm() {
+    if (fromLocation == null) return 'Please provide your location';
+    if (toLocation == null) return 'Please provide your destination';
+    if (arrivalDepTime == null) {
+      return 'Please provide an arrival-departure time';
+    }
+    if (_isSeatAvailable == null || !(_isSeatAvailable!)) {
+      return 'Please provide a valid seat number';
+    }
+    if (_isCheckingSeat) return 'Please wait while we check seat availability';
+    return null;
+  }
+
+  void onComfortChipTapped(BusType value) {
     setState(() {
       currentBusType = value;
-      if (currentBusType == 1) {
+      if (currentBusType == BusType.VIP) {
         total = 30;
-      } else if (currentBusType == 2) {
+      } else if (currentBusType == BusType.STC) {
         total = 20.50;
-      } else if (currentBusType == 3) {
+      } else if (currentBusType == BusType.FORD) {
         total = 35.50;
       } else {
         total = 50.00;
       }
     });
+    _onSeatValueChanged(bookSeat.text);
   }
 
   void _onChangeTime() async {
@@ -63,7 +95,10 @@ class _TripsBookingState extends State<TripsBooking> {
   void initState() {
     super.initState();
     date = DateTime.now();
-    buses = ['VVIP', 'STC', 'Ford', 'VIP'];
+    buses = BusType.values;
+    currentBusType = buses.first;
+    bookSeat = TextEditingController(text: '');
+    _isCheckingSeat = false;
   }
 
   void _onSelectDate() async {
@@ -86,7 +121,7 @@ class _TripsBookingState extends State<TripsBooking> {
     });
   }
 
-  void ChangePrice() {
+  void changePrice() {
     int price = 1;
     setState(() {
       bookSeat.text.isNotEmpty ? price = int.parse(bookSeat.text) : price = 1;
@@ -128,91 +163,107 @@ class _TripsBookingState extends State<TripsBooking> {
     });
   }
 
+  String? checkForSeatValidity(String value) {
+    int? res = int.tryParse(value);
+    if (res == null) return 'Please enter a number';
+    if (res < 1) return 'Enter a valid seat number';
+    if (res > currentBusType.maxCapacity) return 'Seat number out of range';
+    return null;
+  }
+
+  Future<bool> checkSeatAvailablity() async {
+    return Future.delayed(const Duration(seconds: 5), () => true);
+  }
+
+  _onSeatValueChanged(String value) async {
+    String? res = checkForSeatValidity(value);
+    if (res != null) {
+      setState(() {
+        _isSeatAvailable = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 1),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.error,
+                color: Colors.red,
+              ),
+              Text(res)
+            ],
+          )));
+      return;
+    }
+    setState(() {
+      _isCheckingSeat = true;
+    });
+    _isSeatAvailable = await checkSeatAvailablity();
+    setState(() {
+      _isCheckingSeat = false;
+    });
+    if (!(_isSeatAvailable!)) {
+      return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 1),
+          content: Row(
+            children: const [
+              Icon(
+                Icons.error,
+                color: Colors.red,
+              ),
+              Text('Seat has already been taken')
+            ],
+          )));
+    }
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(seconds: 1),
+        content: Row(
+          children: const [
+            Icon(
+              Icons.error,
+              color: Colors.green,
+            ),
+            Text('Seat number is available')
+          ],
+        )));
+    ;
+  }
+
   @override
   Widget build(BuildContext context) {
-    double _width = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: bgColor,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 35,
-          vertical: 20,
-        ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LocationWidget(
-                          onTap: onChooseLocation,
-                          location: fromLocation,
-                          type: Location.FROM),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      LocationWidget(
-                          onTap: onChooseLocation,
-                          location: toLocation,
-                          type: Location.TO),
-                    ],
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE4EDF0),
-                      borderRadius: BorderRadius.circular(8),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 35,
+            vertical: 20,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LocationWidget(
+                            onTap: onChooseLocation,
+                            location: fromLocation,
+                            type: Location.FROM),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        LocationWidget(
+                            onTap: onChooseLocation,
+                            location: toLocation,
+                            type: Location.TO),
+                      ],
                     ),
-                    child: Image.asset(
-                      'assets/pngs/updown.png',
-                      color: const Color(0xFF005248),
-                      height: 10,
-                      width: 10,
-                    ),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(
-                  thickness: 0.3,
-                  color: Colors.grey,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Date",
-                        style: TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.grey,
-                            fontSize: 13),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        date.getDate,
-                        style: const TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.black,
-                            fontSize: 18),
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    onTap: _onSelectDate,
-                    child: Container(
+                    Container(
                       height: 40,
                       width: 40,
                       decoration: BoxDecoration(
@@ -220,256 +271,221 @@ class _TripsBookingState extends State<TripsBooking> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Image.asset(
-                        'assets/pngs/cal.png',
+                        'assets/pngs/updown.png',
                         color: const Color(0xFF005248),
                         height: 10,
                         width: 10,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(
-                  thickness: 0.3,
-                  color: Colors.grey,
+                  ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Arrival - Departure time",
-                        style: TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.grey,
-                            fontSize: 13),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        arrivalDepTime ?? 'Please select a time',
-                        style: const TextStyle(
-                            fontFamily: 'Poppins-Regular',
-                            color: Colors.black,
-                            fontSize: 18),
-                      ),
-                    ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Divider(
+                    thickness: 0.3,
+                    color: Colors.grey,
                   ),
-                  InkWell(
-                    onTap: _onChangeTime,
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE4EDF0),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Image.asset(
-                        'assets/pngs/clock.png',
-                        color: const Color(0xFF005248),
-                        height: 10,
-                        width: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Date",
+                          style: TextStyle(
+                              fontFamily: 'Poppins-Regular',
+                              color: Colors.grey,
+                              fontSize: 13),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          date.getDate,
+                          style: const TextStyle(
+                              fontFamily: 'Poppins-Regular',
+                              color: Colors.black,
+                              fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: _onSelectDate,
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE4EDF0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.asset(
+                          'assets/pngs/cal.png',
+                          color: const Color(0xFF005248),
+                          height: 10,
+                          width: 10,
+                        ),
                       ),
                     ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Divider(
+                    thickness: 0.3,
+                    color: Colors.grey,
                   ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(
-                  thickness: 0.3,
-                  color: Colors.grey,
                 ),
-              ),
-              const Text(
-                "Choose comfort",
-                style: TextStyle(
-                    fontFamily: 'Poppins-Regular',
-                    color: Colors.grey,
-                    fontSize: 13),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SingleChildScrollView(
-                child: SizedBox(
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: buses
-                          .asMap()
-                          .entries
-                          .map((e) => ComfortChip(
-                              currentIndex: currentBusType,
-                              index: e.key,
-                              fn: () => onComfortChipTapped(e.key),
-                              name: e.value))
-                          .toList()),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(
-                  thickness: 0.3,
-                  color: Colors.grey,
-                ),
-              ),
-              const Text(
-                "Select you seat",
-                style: TextStyle(
-                    fontFamily: 'Poppins-Regular',
-                    color: Colors.grey,
-                    fontSize: 13),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Arrival - Departure time",
+                          style: TextStyle(
+                              fontFamily: 'Poppins-Regular',
+                              color: Colors.grey,
+                              fontSize: 13),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          arrivalDepTime ?? 'Please select a time',
+                          style: const TextStyle(
+                              fontFamily: 'Poppins-Regular',
+                              color: Colors.black,
+                              fontSize: 18),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: _onChangeTime,
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE4EDF0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.asset(
+                          'assets/pngs/clock.png',
+                          color: const Color(0xFF005248),
+                          height: 10,
+                          width: 10,
+                        ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextFormField(
-                          controller: bookSeat,
-                          textInputAction: TextInputAction.none,
-                          keyboardType: TextInputType.number,
-                          onEditingComplete: () => ChangePrice(),
-                          decoration: const InputDecoration(
-                            hintText: "No seat selected",
-                            hintStyle: TextStyle(
-                              color: Colors.black26,
-                              fontSize: 16,
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Divider(
+                    thickness: 0.3,
+                    color: Colors.grey,
+                  ),
+                ),
+                const Text(
+                  "Choose comfort",
+                  style: TextStyle(
+                      fontFamily: 'Poppins-Regular',
+                      color: Colors.grey,
+                      fontSize: 13),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SingleChildScrollView(
+                  child: SizedBox(
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: buses
+                            .asMap()
+                            .entries
+                            .map((e) => ComfortChip(
+                                currentIndex: currentBusType.index,
+                                index: e.key,
+                                fn: () => onComfortChipTapped(e.value),
+                                name: e.value.name))
+                            .toList()),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Divider(
+                    thickness: 0.3,
+                    color: Colors.grey,
+                  ),
+                ),
+                const Text(
+                  "Select you seat",
+                  style: TextStyle(
+                      fontFamily: 'Poppins-Regular',
+                      color: Colors.grey,
+                      fontSize: 13),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextFormField(
+                            controller: bookSeat,
+                            textInputAction: TextInputAction.none,
+                            keyboardType: TextInputType.number,
+                            onChanged: _onSeatValueChanged,
+                            onEditingComplete: () => changePrice(),
+                            decoration: const InputDecoration(
+                              hintText: "No seat selected",
+                              hintStyle: TextStyle(
+                                color: Colors.black26,
+                                fontSize: 16,
+                              ),
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
                             ),
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  InkWell(
-                    onTap: _onSelectSeat,
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE4EDF0),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Image.asset(
-                        'assets/pngs/seat.png',
-                        color: const Color(0xFF005248),
-                        height: 10,
-                        width: 10,
-                      ),
+                    const SizedBox(
+                      width: 10,
                     ),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Divider(
-                  thickness: 0.3,
-                  color: Colors.grey,
-                ),
-              ),
-              Container(
-                height: 100,
-                width: _width,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE4EDF0),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset('assets/pngs/qr.png'),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Ticket price",
-                              style: TextStyle(
-                                  fontFamily: 'Poppins-Regular',
-                                  color: Colors.black,
-                                  fontSize: 18),
-                            ),
-                            Text(
-                              "GHS $total",
-                              style: const TextStyle(
-                                  fontFamily: 'Poppins-Bold',
-                                  color: Colors.black,
-                                  fontSize: 22),
-                            ),
-                          ],
+                    Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE4EDF0),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      )
-                    ],
+                        child: SeatCheckWidget(
+                            isLoading: _isCheckingSeat,
+                            isSeatAvailable: _isSeatAvailable)),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(
+                    thickness: 0.3,
+                    color: Colors.grey,
                   ),
                 ),
-              ),
-              Container(
-                  padding: const EdgeInsets.only(top: 5, left: 10, right: 10),
-                  height: 100,
-                  width: _width,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE4EDF0),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'barccodebarcodeb',
-                      style: TextStyle(
-                          fontFamily: 'Barcode',
-                          fontSize: 50,
-                          color: Colors.black),
-                    ),
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0, top: 35),
-                child: GestureDetector(
-                  onTap: _settingModalBottomSheet,
-                  child: Container(
-                    height: 48,
-                    width: 230,
-                    decoration: BoxDecoration(
-                      color: deepGreen,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Purchase ticket",
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontFamily: 'Poppins-Light'),
-                      ),
-                    ),
-                  ),
+                TicketPriceWidget(total: total),
+                PurchaseBtn(
+                  callback: _settingModalBottomSheet,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

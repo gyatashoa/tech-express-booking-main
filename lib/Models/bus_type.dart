@@ -1,6 +1,9 @@
 enum BusType {
-  VVIP,
-  STC,
-  FORD,
-  VIP,
+  VVIP(45),
+  STC(20),
+  FORD(30),
+  VIP(40);
+
+  const BusType(this.maxCapacity);
+  final int maxCapacity;
 }
