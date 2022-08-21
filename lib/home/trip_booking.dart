@@ -5,6 +5,7 @@ import 'package:tech_express_app/Models/bus_type.dart';
 import 'package:tech_express_app/Models/location.dart';
 import 'package:tech_express_app/Models/predefined_trip.dart';
 import 'package:tech_express_app/data/location.dart';
+import 'package:tech_express_app/utils/price_computation.dart';
 import 'package:tech_express_app/utils/seat_check_utils.dart';
 import 'package:tech_express_app/widget/comfort_chip.dart';
 import 'package:tech_express_app/widget/location_selection_widget.dart';
@@ -27,7 +28,7 @@ class _TripsBookingState extends State<TripsBooking> {
   late TextEditingController bookSeat;
   late BusType currentBusType;
 
-  double total = 50.0;
+  late double total;
   String? fromLocation;
   String? toLocation;
   late DateTime date;
@@ -71,15 +72,6 @@ class _TripsBookingState extends State<TripsBooking> {
   void onComfortChipTapped(BusType value) {
     setState(() {
       currentBusType = value;
-      if (currentBusType == BusType.VIP) {
-        total = 30;
-      } else if (currentBusType == BusType.STC) {
-        total = 20.50;
-      } else if (currentBusType == BusType.FORD) {
-        total = 35.50;
-      } else {
-        total = 50.00;
-      }
     });
     _onSeatValueChanged(bookSeat.text);
   }
@@ -101,11 +93,14 @@ class _TripsBookingState extends State<TripsBooking> {
     currentBusType = buses.first;
     bookSeat = TextEditingController(text: '');
     _isCheckingSeat = false;
+    total = 0;
     if (widget.predefinedTrip != null) {
       toLocation = widget.predefinedTrip?.to;
       fromLocation = widget.predefinedTrip?.from;
       arrivalDepTime = widget.predefinedTrip?.departure;
       currentBusType = widget.predefinedTrip!.type;
+      total =
+          computePrice(widget.predefinedTrip?.to, widget.predefinedTrip?.from);
     }
   }
 
@@ -129,22 +124,6 @@ class _TripsBookingState extends State<TripsBooking> {
     });
   }
 
-  void changePrice() {
-    int price = 1;
-    setState(() {
-      bookSeat.text.isNotEmpty ? price = int.parse(bookSeat.text) : price = 1;
-      if (price == 1) {
-        total = total;
-      } else if (price >= 2 && price <= 3) {
-        total = total * 2;
-      } else {
-        if (price >= 4) {
-          total = total * 4;
-        }
-      }
-    });
-  }
-
   Future<void> onChooseLocation(Location location) async {
     if (location == Location.FROM) {
       List<String> data = locationData.toList();
@@ -156,6 +135,7 @@ class _TripsBookingState extends State<TripsBooking> {
       if (result == null) return;
       setState(() {
         fromLocation = result;
+        total = computePrice(toLocation, fromLocation);
       });
       return;
     }
@@ -168,6 +148,7 @@ class _TripsBookingState extends State<TripsBooking> {
     if (result == null) return;
     setState(() {
       toLocation = result;
+      total = computePrice(toLocation, fromLocation);
     });
   }
 
@@ -452,7 +433,6 @@ class _TripsBookingState extends State<TripsBooking> {
                             textInputAction: TextInputAction.none,
                             keyboardType: TextInputType.number,
                             onChanged: _onSeatValueChanged,
-                            onEditingComplete: () => changePrice(),
                             decoration: const InputDecoration(
                               hintText: "No seat selected",
                               hintStyle: TextStyle(
