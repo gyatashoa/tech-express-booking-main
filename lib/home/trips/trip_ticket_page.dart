@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:tech_express_app/Models/ticket_model.dart';
 import '../../utils/constants.dart';
 
 class TripTicketPage extends StatelessWidget {
-  const TripTicketPage({Key? key}) : super(key: key);
+  const TripTicketPage({Key? key, required this.ticketModel}) : super(key: key);
+  final TicketModel ticketModel;
+
+  void _onViewQrCode(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              content: QrImage(
+                data: ticketModel.id,
+                version: QrVersions.auto,
+              ),
+            ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +42,18 @@ class TripTicketPage extends StatelessWidget {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'Booking details',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      'Total \$49,00',
-                      style: TextStyle(
+                      'Total GHS${ticketModel.price}',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                       ),
@@ -53,13 +67,13 @@ class TripTicketPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-          margin:const  EdgeInsets.fromLTRB(0, 0, 0, 32),
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 32),
           width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding:const  EdgeInsets.all(26),
+                padding: const EdgeInsets.all(26),
                 margin: const EdgeInsets.fromLTRB(26, 26, 26, 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -81,13 +95,13 @@ class TripTicketPage extends StatelessWidget {
                       children: [
                         Center(
                           child: Image.asset(
-                            'assets/images/bus1.png',
+                            ticketModel.busType.busImage,
                           ),
                         ),
                         const SizedBox(height: 28),
-                        const Text(
-                          'VVIP',
-                          style: TextStyle(
+                        Text(
+                          ticketModel.busType.name,
+                          style: const TextStyle(
                             fontSize: 32,
                           ),
                         ),
@@ -103,56 +117,82 @@ class TripTicketPage extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.location_on_outlined, color: Colors.redAccent,),
+                                        const Icon(
+                                          Icons.location_on_outlined,
+                                          color: Colors.redAccent,
+                                        ),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 8.0),
+                                          padding:
+                                              const EdgeInsets.only(left: 8.0),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: const [
-                                              Text('From',
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'From',
                                                 style: TextStyle(
                                                     color: Colors.grey,
-                                                    fontFamily: 'Poppins-Regular',
-                                                    fontSize: 14),),
-                                              Text('Kumasi',
-                                                style: TextStyle(
+                                                    fontFamily:
+                                                        'Poppins-Regular',
+                                                    fontSize: 14),
+                                              ),
+                                              Text(
+                                                ticketModel.from,
+                                                style: const TextStyle(
                                                     color: Colors.black,
-                                                    fontFamily: 'Poppins-Medium',
-                                                    fontSize: 14),),
+                                                    fontFamily:
+                                                        'Poppins-Medium',
+                                                    fontSize: 14),
+                                              ),
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ],),
-                                const SizedBox(height: 20,),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
-                                         const Icon(Icons.location_on, color: Colors.green,),
+                                        const Icon(
+                                          Icons.location_on,
+                                          color: Colors.green,
+                                        ),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 8.0),
+                                          padding:
+                                              const EdgeInsets.only(left: 8.0),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: const [
-                                              Text('To',
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'To',
                                                 style: TextStyle(
                                                     color: Colors.grey,
-                                                    fontFamily: 'Poppins-Regular',
-                                                    fontSize: 14),),
-                                              Text('Achimota',
-                                                style: TextStyle(
+                                                    fontFamily:
+                                                        'Poppins-Regular',
+                                                    fontSize: 14),
+                                              ),
+                                              Text(
+                                                ticketModel.to,
+                                                style: const TextStyle(
                                                     color: Colors.black,
-                                                    fontFamily: 'Poppins-Medium',
-                                                    fontSize: 14),),
+                                                    fontFamily:
+                                                        'Poppins-Medium',
+                                                    fontSize: 14),
+                                              ),
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ],),
+                                  ],
+                                ),
                               ],
                             ),
                             Container(
@@ -162,7 +202,12 @@ class TripTicketPage extends StatelessWidget {
                                 color: const Color(0xFFE4EDF0),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Image.asset('assets/pngs/updown.png',color: const Color(0xFF005248), height: 10,width: 10,),
+                              child: Image.asset(
+                                'assets/pngs/updown.png',
+                                color: const Color(0xFF005248),
+                                height: 10,
+                                width: 10,
+                              ),
                             ),
                           ],
                         ),
@@ -170,21 +215,26 @@ class TripTicketPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 28),
                     const Divider(),
-                    const SizedBox(height: 28),
+                    TextButton(
+                        style: TextButton.styleFrom(backgroundColor: deepGreen),
+                        onPressed: () => _onViewQrCode(context),
+                        child: const Text(
+                          'Check Qr Code',
+                        )),
                     Column(
                       children: [
                         Row(
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
+                              children: [
+                                const Text(
                                   'Passenger',
                                   style: TextStyle(color: veppoLightGrey),
                                 ),
                                 Text(
-                                  'Jane Doe',
-                                  style: TextStyle(
+                                  ticketModel.userName,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                   ),
                                 ),
@@ -233,11 +283,11 @@ class TripTicketPage extends StatelessWidget {
                     const SizedBox(height: 28),
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      child: const FittedBox(
+                      child: FittedBox(
                         fit: BoxFit.fitWidth,
                         child: Text(
-                          'barccodebarcodeb',
-                          style: TextStyle(
+                          ticketModel.id.substring(0, 16),
+                          style: const TextStyle(
                             fontFamily: 'Barcode',
                           ),
                         ),
@@ -246,9 +296,9 @@ class TripTicketPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const Text(
-                'ticket ID: 18128239487912',
-                style: TextStyle(
+              Text(
+                'ticket ID: ${ticketModel.id}',
+                style: const TextStyle(
                   color: veppoLightGrey,
                   fontSize: 10,
                 ),

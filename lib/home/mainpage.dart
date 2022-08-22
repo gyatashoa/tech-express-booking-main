@@ -55,13 +55,13 @@ class Mainpage extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 15.0, top: 13),
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const TripTicketPage(),
-                                  ),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) =>
+                                //         const TripTicketPage(),
+                                //   ),
+                                // );
                               },
                               child: Container(
                                 // height: 38,

@@ -51,22 +51,16 @@ class _BoughtTicketsState extends State<BoughtTickets> {
                     }
                     final docs =
                         snapshot.data!.docs.map((e) => e.data()).toList();
+                    docs.sort(((a, b) => b.createdAt.compareTo(a.createdAt)));
                     return Expanded(
                       child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
                         itemCount: docs.length,
                         itemBuilder: (context, index) => Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const TripTicketPage(),
-                                  ),
-                                );
-                              },
-                              child: TicketCard(
-                                ticketModel: docs[index],
-                              )),
+                          child: TicketCard(
+                            ticketModel: docs[index],
+                          ),
                         ),
                       ),
                     );
