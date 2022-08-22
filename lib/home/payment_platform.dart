@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/utils/constants.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:tech_express_app/widget/momo_card_widget.dart';
 
 import 'complete_pay.dart';
 
@@ -152,8 +153,9 @@ class _CreditCardPayState extends State<CreditCardPay> {
 
 */
 class MomoCardPayment extends StatefulWidget {
-  const MomoCardPayment({Key? key}) : super(key: key);
-
+  const MomoCardPayment({Key? key, required this.ticketModel})
+      : super(key: key);
+  final TicketModel ticketModel;
   @override
   State<MomoCardPayment> createState() => _MomoCardPaymentState();
 }
@@ -177,9 +179,9 @@ class _MomoCardPaymentState extends State<MomoCardPayment> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                const Text(
-                  "Total: Ghs 23.00",
-                  style: TextStyle(
+                Text(
+                  "Total: Ghs ${widget.ticketModel.price}",
+                  style: const TextStyle(
                       fontFamily: 'Poppins-Regular',
                       color: Colors.black,
                       fontSize: 20),
@@ -211,133 +213,16 @@ class _MomoCardPaymentState extends State<MomoCardPayment> {
                       ),
                     )),
                 const SizedBox(height: 50),
-                momoCard(context, "MTN MOMO", "eg : +233 24 000 0000"),
-                momoCard(context, "Vodafone Cash", "eg : +233 20 000 0000"),
-                momoCard(context, "AirtelTogo Cash", "eg : +233 26 000 0000"),
+                const MomoCardWidget(
+                    name: "MTN MOMO", exampleNumber: "eg : 024 000 0000"),
+                const MomoCardWidget(
+                    name: "Vodafone Cash", exampleNumber: "eg : 020 000 0000"),
+                const MomoCardWidget(
+                    name: "MTN MOMO", exampleNumber: "eg : 026 000 0000"),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Padding momoCard(BuildContext context, String name, exmpNumber) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        elevation: 5.9,
-        child: ExpansionTile(
-          textColor: Colors.black,
-          title: Text(name),
-          leading: null,
-          childrenPadding: const EdgeInsets.all(10.0),
-          children: [
-            Container(
-              height: 45,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextFormField(
-                controller: numberField,
-                textInputAction: TextInputAction.none,
-                keyboardType: TextInputType.phone,
-                cursorColor: Colors.black,
-                decoration: InputDecoration(
-                  hintText: exmpNumber,
-                  hintStyle: const TextStyle(
-                    color: Colors.black26,
-                    fontSize: 16,
-                  ),
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: GestureDetector(
-                onTap: () => showMydialog(context, context),
-                child: Container(
-                  height: 60,
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color: deepGreen,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Purchase ticket",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontFamily: 'Poppins-Light'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  showMydialog(context, builder) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Enter your pin'),
-            content: Form(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  optCodeField(context),
-                  optCodeField(context),
-                  optCodeField(context),
-                  optCodeField(context),
-                ],
-              ),
-            ),
-            actions: [
-              FlatButton(
-                textColor: const Color(0xFF6200EE),
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const CompletePayment(),
-                    ),
-                  );
-                },
-                child: const Text('Send Code'),
-              ),
-            ],
-          );
-        });
-  }
-
-  Container optCodeField(BuildContext context) {
-    return Container(
-      height: 50,
-      width: 50,
-      decoration: BoxDecoration(
-          color: Colors.blueGrey[100], borderRadius: BorderRadius.circular(10)),
-      child: TextFormField(
-        onChanged: ((value) {
-          if (value.length == 1) {
-            FocusScope.of(context).nextFocus();
-          }
-        }),
-        style: Theme.of(context).textTheme.headline6,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          LengthLimitingTextInputFormatter(1),
-          FilteringTextInputFormatter.digitsOnly,
-        ],
       ),
     );
   }

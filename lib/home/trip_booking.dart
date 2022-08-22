@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_express_app/Models/bus_type.dart';
 import 'package:tech_express_app/Models/location.dart';
 import 'package:tech_express_app/Models/predefined_trip.dart';
+import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/data/location.dart';
 import 'package:tech_express_app/utils/price_computation.dart';
 import 'package:tech_express_app/utils/seat_check_utils.dart';
@@ -40,8 +42,23 @@ class _TripsBookingState extends State<TripsBooking> {
   void _settingModalBottomSheet() {
     String? res = checkForm();
     if (res == null) {
+      final ticket = TicketModel(
+          arrivalDepTime: arrivalDepTime!,
+          busType: currentBusType,
+          createdAt: DateTime.now(),
+          date: date,
+          from: fromLocation!,
+          to: toLocation!,
+          id: '',
+          price: total,
+          seatNumber: int.parse(bookSeat.text),
+          userId: FirebaseAuth.instance.currentUser!.uid,
+          userName: FirebaseAuth.instance.currentUser!.displayName!);
       showModalBottomSheet(
-          context: context, builder: (_) => const PaymentMethodWidget());
+          context: context,
+          builder: (_) => PaymentMethodWidget(
+                ticketModel: ticket,
+              ));
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

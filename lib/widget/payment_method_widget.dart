@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'package:tech_express_app/Models/ticket_model.dart';
 import '../home/payment_platform.dart';
 
 class PaymentMethodWidget extends StatelessWidget {
-  const PaymentMethodWidget({Key? key}) : super(key: key);
+  const PaymentMethodWidget({Key? key, required this.ticketModel})
+      : super(key: key);
+  final TicketModel ticketModel;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,9 @@ class PaymentMethodWidget extends StatelessWidget {
             subtitle: const Text("MTN Momo / Voda Cash / AirtelTigo Cash"),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const MomoCardPayment(),
+                builder: (_) => MomoCardPayment(
+                  ticketModel: ticketModel,
+                ),
               ),
             ),
           ),
