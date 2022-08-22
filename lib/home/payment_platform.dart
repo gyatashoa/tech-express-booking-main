@@ -215,12 +215,18 @@ class _MomoCardPaymentState extends State<MomoCardPayment> {
                       ),
                     )),
                 const SizedBox(height: 50),
-                const MomoCardWidget(
-                    name: "MTN MOMO", exampleNumber: "eg : 024 000 0000"),
-                const MomoCardWidget(
-                    name: "Vodafone Cash", exampleNumber: "eg : 020 000 0000"),
-                const MomoCardWidget(
-                    name: "MTN MOMO", exampleNumber: "eg : 026 000 0000"),
+                MomoCardWidget(
+                    ticketModel: widget.ticketModel,
+                    name: "MTN MOMO",
+                    exampleNumber: "eg : 024 000 0000"),
+                MomoCardWidget(
+                    ticketModel: widget.ticketModel,
+                    name: "Vodafone Cash",
+                    exampleNumber: "eg : 020 000 0000"),
+                MomoCardWidget(
+                    ticketModel: widget.ticketModel,
+                    name: "MTN MOMO",
+                    exampleNumber: "eg : 026 000 0000"),
               ],
             ),
           ),

@@ -14,6 +14,7 @@ import 'package:tech_express_app/widget/location_selection_widget.dart';
 import 'package:tech_express_app/widget/location_widget.dart';
 import 'package:tech_express_app/widget/ticket_price_widget.dart';
 import 'package:tech_express_app/widget/time_selection_widget.dart';
+import 'package:uuid/uuid.dart';
 import '../utils/constants.dart';
 import '../widget/payment_method_widget.dart';
 import '../widget/purchase_btn.dart';
@@ -49,7 +50,7 @@ class _TripsBookingState extends State<TripsBooking> {
           date: date,
           from: fromLocation!,
           to: toLocation!,
-          id: '',
+          id: const Uuid().v4(),
           price: total,
           seatNumber: int.parse(bookSeat.text),
           userId: FirebaseAuth.instance.currentUser!.uid,

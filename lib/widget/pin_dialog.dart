@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tech_express_app/Models/ticket_model.dart';
+import 'package:tech_express_app/service/cloud_firestore_service.dart';
 import 'package:tech_express_app/utils/constants.dart';
+import 'package:tech_express_app/utils/show_error_snackbar.dart';
 
 import '../home/complete_pay.dart';
 
 class PinDialog extends StatefulWidget {
-  const PinDialog({Key? key}) : super(key: key);
+  const PinDialog({Key? key, required this.ticketModel}) : super(key: key);
+  final TicketModel ticketModel;
 
   @override
   State<PinDialog> createState() => _PinDialogState();
@@ -27,32 +31,25 @@ class _PinDialogState extends State<PinDialog> {
       setState(() {
         _isLoading = true;
       });
-      //TODO Add ticket to db
-      await Future.delayed(const Duration(seconds: 2));
-      //TODO Send sms here
+      var res =
+          await CloudFirestoreService.instance.bookTicket(widget.ticketModel);
       setState(() {
         _isLoading = false;
       });
+      if (res is String) {
+        showErrorSnackbar(context, res);
+        return;
+      }
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => const CompletePayment(
-            ticketId: 'dndjsf',
+          builder: (_) => CompletePayment(
+            ticketId: widget.ticketModel.id,
           ),
         ),
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(seconds: 1),
-        content: Row(
-          children: const [
-            Icon(
-              Icons.error,
-              color: Colors.red,
-            ),
-            Text('Please enter a valid pin')
-          ],
-        )));
+    showErrorSnackbar(context, 'Please enter a valid pin');
   }
 
   @override

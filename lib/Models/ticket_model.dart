@@ -43,6 +43,7 @@ class TicketModel {
   static BusType _getBusType(int index) => BusType.values[index];
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'userName': userName,
         'userId': userId,
         'busType': busType.index,

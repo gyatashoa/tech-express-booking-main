@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/widget/pin_dialog.dart';
 
 import '../utils/constants.dart';
 
 class MomoCardWidget extends StatefulWidget {
   const MomoCardWidget(
-      {Key? key, required this.name, required this.exampleNumber})
+      {Key? key,
+      required this.name,
+      required this.ticketModel,
+      required this.exampleNumber})
       : super(key: key);
+  final TicketModel ticketModel;
   final String exampleNumber;
   final String name;
   @override
@@ -26,7 +31,11 @@ class _MomoCardWidgetState extends State<MomoCardWidget> {
 
   Future<void> showPinDialog() async {
     if (_formKey.currentState!.validate()) {
-      return showDialog(context: context, builder: (_) => const PinDialog());
+      return showDialog(
+          context: context,
+          builder: (_) => PinDialog(
+                ticketModel: widget.ticketModel,
+              ));
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(seconds: 1),
