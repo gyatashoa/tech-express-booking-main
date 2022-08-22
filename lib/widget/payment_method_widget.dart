@@ -31,7 +31,9 @@ class PaymentMethodWidget extends StatelessWidget {
             subtitle: const Text("Visa / Master"),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const CreditCardPay(),
+                builder: (_) => CreditCardPay(
+                  ticketModel: ticketModel,
+                ),
               ),
             ),
           ),

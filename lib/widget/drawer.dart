@@ -32,13 +32,13 @@ class UserDrawer extends StatelessWidget {
           ),
           onTap: () {},
         ),
-        ListTile(
-          leading: const Icon(Icons.history),
-          title: const Text(
-            'History',
-          ),
-          onTap: () {},
-        ),
+        // ListTile(
+        //   leading: const Icon(Icons.history),
+        //   title: const Text(
+        //     'History',
+        //   ),
+        //   onTap: () {},
+        // ),
         ListTile(
           leading: const Icon(Icons.logout),
           title: const Text(

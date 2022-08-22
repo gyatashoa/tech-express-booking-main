@@ -179,7 +179,7 @@ class _TripsBookingState extends State<TripsBooking> {
   }
 
   Future<bool> checkSeatAvailablity() async {
-    return Future.delayed(const Duration(seconds: 5), () => true);
+    return Future.delayed(const Duration(seconds: 1), () => true);
   }
 
   _onSeatValueChanged(String value) async {

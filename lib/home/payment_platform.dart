@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/credit_card_brand.dart';
 import 'package:tech_express_app/Models/ticket_model.dart';
+import 'package:tech_express_app/service/cloud_firestore_service.dart';
 import 'package:tech_express_app/utils/constants.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:tech_express_app/utils/show_error_snackbar.dart';
 import 'package:tech_express_app/widget/momo_card_widget.dart';
 
 import 'complete_pay.dart';
 
 //Credit Card
 class CreditCardPay extends StatefulWidget {
-  const CreditCardPay({Key? key}) : super(key: key);
+  const CreditCardPay({Key? key, required this.ticketModel}) : super(key: key);
+  final TicketModel ticketModel;
 
   @override
   State<CreditCardPay> createState() => _CreditCardPayState();
@@ -21,107 +25,124 @@ class _CreditCardPayState extends State<CreditCardPay> {
   String cvvCode = '';
   bool isCvvFocused = false;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  late bool _isLoading;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoading = false;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final devSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Credit Card Payment'),
         centerTitle: true,
       ),
-      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CreditCardWidget(
-                cardBgColor: Colors.greenAccent,
-                cardNumber: cardNumber,
-                expiryDate: expiryDate,
-                cardHolderName: cardHolderName,
-                cvvCode: cvvCode,
-                showBackView: isCvvFocused,
-                obscureCardNumber: true,
-                obscureCardCvv: true,
-                onCreditCardWidgetChange: (CreditCardBrand) {},
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CreditCardWidget(
+                  cardBgColor: Colors.greenAccent,
+                  cardNumber: cardNumber,
+                  expiryDate: expiryDate,
+                  cardHolderName: cardHolderName,
+                  cvvCode: cvvCode,
+                  showBackView: isCvvFocused,
+                  obscureCardNumber: true,
+                  obscureCardCvv: true,
+                  // height: devSize.height * .3,
+                  onCreditCardWidgetChange: (CreditCardBrand brand) {
+                    print(brand.brandName);
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CreditCardForm(
-                      formKey: formKey,
-                      onCreditCardModelChange: onCreditCardModelChange,
-                      obscureCvv: true,
-                      obscureNumber: true,
-                      cardNumberDecoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Number',
-                        hintText: 'XXXX XXXX XXXX XXXX',
-                      ),
-                      expiryDateDecoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Expired Date',
-                        hintText: 'XX/XX',
-                      ),
-                      cvvCodeDecoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'CVV',
-                        hintText: 'XXX',
-                      ),
-                      cardHolderDecoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Card Holder Name',
-                      ),
-                      cardHolderName: cardHolderName,
-                      cardNumber: cardNumber,
-                      cvvCode: cvvCode,
-                      expiryDate: expiryDate,
-                      themeColor: Colors.black,
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 20.0, top: 20, right: 20),
-                      child: GestureDetector(
-                        onTap: () {
-                          if (formKey.currentState!.validate()) {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => const CompletePayment(
-                                  ticketId: 'dssfdf',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          height: 60,
-                          width: 250,
-                          decoration: BoxDecoration(
-                            color: deepGreen,
-                            borderRadius: BorderRadius.circular(8),
+              CreditCardForm(
+                formKey: formKey,
+                onCreditCardModelChange: onCreditCardModelChange,
+                obscureCvv: true,
+                obscureNumber: true,
+                cardNumberDecoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Number',
+                  hintText: 'XXXX XXXX XXXX XXXX',
+                ),
+                expiryDateDecoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Expired Date',
+                  hintText: 'XX/XX',
+                ),
+                cvvCodeDecoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'CVV',
+                  hintText: 'XXX',
+                ),
+                cardHolderDecoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Card Holder Name',
+                ),
+                cardHolderName: cardHolderName,
+                cardNumber: cardNumber,
+                cvvCode: cvvCode,
+                expiryDate: expiryDate,
+                themeColor: Colors.black,
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0, top: 20, right: 20),
+                child: GestureDetector(
+                  onTap: () async {
+                    if (formKey.currentState!.validate()) {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      var res = await CloudFirestoreService.instance
+                          .bookTicket(widget.ticketModel);
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      if (res is String) {
+                        showErrorSnackbar(context, res);
+                        return;
+                      }
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => CompletePayment(
+                            ticketId: widget.ticketModel.id,
                           ),
-                          child: const Center(
-                            child: Text(
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    height: 60,
+                    width: 250,
+                    decoration: BoxDecoration(
+                      color: deepGreen,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text(
                               "Pay Now",
                               style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white,
                                   fontFamily: 'Poppins-Light'),
                             ),
-                          ),
-                        ),
-                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -205,10 +226,10 @@ class _MomoCardPaymentState extends State<MomoCardPayment> {
                       color: const Color(0xFFE4EDF0),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'barccodebarcodeb',
-                        style: TextStyle(
+                        widget.ticketModel.id.substring(0, 16),
+                        style: const TextStyle(
                             fontFamily: 'Barcode',
                             fontSize: 50,
                             color: Colors.black),

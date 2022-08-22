@@ -262,14 +262,14 @@ class TripTicketPage extends StatelessWidget {
                             const Spacer(),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
+                              children: [
+                                const Text(
                                   'Seat',
                                   style: TextStyle(color: veppoLightGrey),
                                 ),
                                 Text(
-                                  '11B',
-                                  style: TextStyle(fontSize: 18),
+                                  ticketModel.seatNumber.toString(),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                               ],
                             ),
