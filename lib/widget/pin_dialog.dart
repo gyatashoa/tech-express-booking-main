@@ -35,7 +35,9 @@ class _PinDialogState extends State<PinDialog> {
       });
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => const CompletePayment(),
+          builder: (_) => const CompletePayment(
+            ticketId: 'dndjsf',
+          ),
         ),
       );
       return;

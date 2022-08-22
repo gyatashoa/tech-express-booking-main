@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tech_express_app/home/generate_qr_page.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../utils/constants.dart';
 import 'homepage.dart';
 
 class CompletePayment extends StatelessWidget {
-  const CompletePayment({Key? key}) : super(key: key);
+  const CompletePayment({Key? key, required this.ticketId}) : super(key: key);
+  final String ticketId;
+
+  void _onViewQrCode(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              content: QrImage(
+                data: ticketId,
+                version: QrVersions.auto,
+              ),
+            ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +30,9 @@ class CompletePayment extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Lottie.asset('assets/lotties/succ.json',),
+              Lottie.asset(
+                'assets/lotties/succ.json',
+              ),
               const Text(
                 "Payment Successfully Done",
                 softWrap: true,
@@ -32,8 +46,7 @@ class CompletePayment extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const Generate_QR())),
+                  onTap: () => _onViewQrCode(context),
                   child: Container(
                     height: 60,
                     width: 300,
@@ -43,7 +56,7 @@ class CompletePayment extends StatelessWidget {
                     ),
                     child: const Center(
                       child: Text(
-                        "Generate Payment QR Code",
+                        "View Payment QR Code",
                         style: TextStyle(
                             fontSize: 16,
                             color: Colors.white,
@@ -57,8 +70,9 @@ class CompletePayment extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const Homepage())),
+                  onTap: () => Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const Homepage()),
+                      (_) => false),
                   child: Container(
                     height: 60,
                     width: 300,
@@ -78,7 +92,6 @@ class CompletePayment extends StatelessWidget {
                   ),
                 ),
               ),
-
             ],
           ),
         ),

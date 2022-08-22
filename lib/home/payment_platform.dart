@@ -91,7 +91,9 @@ class _CreditCardPayState extends State<CreditCardPay> {
                           if (formKey.currentState!.validate()) {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                builder: (_) => const CompletePayment(),
+                                builder: (_) => const CompletePayment(
+                                  ticketId: 'dssfdf',
+                                ),
                               ),
                             );
                           }
