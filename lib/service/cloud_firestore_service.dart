@@ -24,21 +24,17 @@ class CloudFirestoreService {
     }
   }
 
-  Future getTickets() async {
-    try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      var res = await _firestore
-          .collection(ticketsCollection)
-          .where('id', isEqualTo: uid)
-          .withConverter<TicketModel>(
-              fromFirestore: (docs, _) => TicketModel.fromJson({
-                    ...docs.data()!,
-                  }),
-              toFirestore: ((value, options) => value.toJson()))
-          .get();
-      return res.docs.map((e) => e.data()).toList();
-    } on Exception {
-      return 'Error booking ticket';
-    }
+  Stream<QuerySnapshot<TicketModel>> getTickets() async* {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    var res = await _firestore
+        .collection(ticketsCollection)
+        .where('userId', isEqualTo: uid)
+        .withConverter<TicketModel>(
+            fromFirestore: (docs, _) => TicketModel.fromJson({
+                  ...docs.data()!,
+                }),
+            toFirestore: ((value, options) => value.toJson()))
+        .snapshots();
+    yield* res;
   }
 }
