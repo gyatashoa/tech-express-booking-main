@@ -28,6 +28,17 @@ class _MomoCardWidgetState extends State<MomoCardWidget> {
     if (_formKey.currentState!.validate()) {
       return showDialog(context: context, builder: (_) => const PinDialog());
     }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(seconds: 1),
+        content: Row(
+          children: const [
+            Icon(
+              Icons.error,
+              color: Colors.red,
+            ),
+            Text('Please enter a valid number')
+          ],
+        )));
   }
 
   String? _onValidatePhoneNumber(String? phoneNumber) {
