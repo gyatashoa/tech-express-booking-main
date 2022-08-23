@@ -8,8 +8,10 @@ import 'package:tech_express_app/Models/predefined_trip.dart';
 import 'package:tech_express_app/Models/status.dart';
 import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/data/location.dart';
+import 'package:tech_express_app/service/cloud_firestore_service.dart';
 import 'package:tech_express_app/utils/price_computation.dart';
 import 'package:tech_express_app/utils/seat_check_utils.dart';
+import 'package:tech_express_app/utils/show_error_snackbar.dart';
 import 'package:tech_express_app/widget/comfort_chip.dart';
 import 'package:tech_express_app/widget/location_selection_widget.dart';
 import 'package:tech_express_app/widget/location_widget.dart';
@@ -182,8 +184,9 @@ class _TripsBookingState extends State<TripsBooking> {
     return null;
   }
 
-  Future<bool> checkSeatAvailablity() async {
-    return Future.delayed(const Duration(seconds: 1), () => true);
+  Future checkSeatAvailablity() async {
+    return CloudFirestoreService.instance
+        .checkForSeatAvailability(int.parse(bookSeat.text), currentBusType);
   }
 
   _onSeatValueChanged(String value) async {
@@ -192,38 +195,25 @@ class _TripsBookingState extends State<TripsBooking> {
       setState(() {
         _isSeatAvailable = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 1),
-          content: Row(
-            children: [
-              const Icon(
-                Icons.error,
-                color: Colors.red,
-              ),
-              Text(res)
-            ],
-          )));
+      showErrorSnackbar(context, res);
       return;
     }
     setState(() {
       _isCheckingSeat = true;
     });
-    _isSeatAvailable = await checkSeatAvailablity();
+    var result = await checkSeatAvailablity();
     setState(() {
       _isCheckingSeat = false;
     });
+    if (result is String) {
+      showErrorSnackbar(context, result);
+      return;
+    }
+    _isSeatAvailable = result;
+
     if (!(_isSeatAvailable!)) {
-      return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 1),
-          content: Row(
-            children: const [
-              Icon(
-                Icons.error,
-                color: Colors.red,
-              ),
-              Text('Seat has already been taken')
-            ],
-          )));
+      showErrorSnackbar(context, 'Seat has already been taken');
+      return;
     }
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(seconds: 1),
@@ -236,7 +226,6 @@ class _TripsBookingState extends State<TripsBooking> {
             Text('Seat number is available')
           ],
         )));
-    ;
   }
 
   @override
