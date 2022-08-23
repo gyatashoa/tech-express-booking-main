@@ -31,18 +31,29 @@ class CloudFirestoreService {
     }
   }
 
-  Future checkForSeatAvailability(int seatNumber, BusType busType) async {
+  Future checkForSeatAvailability(int seatNumber, BusType busType, String? to,
+      String? from, String? arrivalTime, DateTime date) async {
+    if (to == null) return 'Please select a location';
+    if (from == null) return 'Please select a destination';
+    if (arrivalTime == null) return 'Please select an arrival - departure time';
     try {
       var res = await _firestore
           .collection(ticketsCollection)
           .where('busType', isEqualTo: busType.index)
           .where('seatNumber', isEqualTo: seatNumber)
+          .where('to', isEqualTo: to)
+          .where('from', isEqualTo: from)
+          .where('arrivalDepTime', isEqualTo: arrivalTime)
           .withConverter<TicketModel>(
               fromFirestore: (docs, _) => TicketModel.fromJson({
                     ...docs.data()!,
                   }),
               toFirestore: ((value, options) => value.toJson()))
           .get();
+      bool found = res.docs.any((element) => element.data().date.isEqual(date));
+      if (found) {
+        return false;
+      }
       if (res.docs.isEmpty) {
         return true;
       }
@@ -65,4 +76,9 @@ class CloudFirestoreService {
         .snapshots();
     yield* res;
   }
+}
+
+extension on DateTime {
+  bool isEqual(DateTime other) =>
+      (day == other.day) && (month == other.month) && (year == other.year);
 }

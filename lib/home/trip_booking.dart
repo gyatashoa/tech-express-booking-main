@@ -185,8 +185,13 @@ class _TripsBookingState extends State<TripsBooking> {
   }
 
   Future checkSeatAvailablity() async {
-    return CloudFirestoreService.instance
-        .checkForSeatAvailability(int.parse(bookSeat.text), currentBusType);
+    return CloudFirestoreService.instance.checkForSeatAvailability(
+        int.parse(bookSeat.text),
+        currentBusType,
+        toLocation,
+        fromLocation,
+        arrivalDepTime,
+        date);
   }
 
   _onSeatValueChanged(String value) async {
