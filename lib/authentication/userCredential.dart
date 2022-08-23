@@ -22,15 +22,14 @@ class Auth {
 
   //creating account
   void updateAccount(String username, String number, String uid) async {
-    await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
-    _updatePhoneNumber(uid, number);
-  }
+    if (FirebaseAuth.instance.currentUser != null) {
+      Future.wait([
+        FirebaseAuth.instance.currentUser!.updateDisplayName(username),
+        FirebaseAuth.instance.currentUser!.updatePhotoURL(number)
+      ]);
+    }
 
-  Future _updatePhoneNumber(String uid, String phoneNumber) async {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .set(UserModel(number: phoneNumber).toMap());
+    // _updatePhoneNumber(uid, number);
   }
 
   //SignUp
