@@ -48,8 +48,8 @@ class TicketAppBar extends StatelessWidget implements PreferredSizeWidget {
                       color: Colors.white,
                       border: Border.all(color: Colors.white, width: 2),
                       shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: AssetImage('assets/images/pic.jpg'),
+                      image: const DecorationImage(
+                          image: AssetImage('assets/pngs/user.png'),
                           fit: BoxFit.cover)),
                 ),
               ),

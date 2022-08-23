@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/service/cloud_firestore_service.dart';
 import 'package:tech_express_app/widget/ticket_card.dart';
@@ -43,11 +44,21 @@ class _BoughtTicketsState extends State<BoughtTickets> {
                     return const Text('Error');
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return Expanded(
+                      child: Center(
+                          child: Lottie.asset('assets/lotties/loading.json')),
+                    );
                   }
                   if (snapshot.hasData) {
                     if (snapshot.data!.docs.isEmpty) {
-                      return const Text('You have no bought tickets');
+                      return Center(
+                        child: Column(
+                          children: [
+                            Lottie.asset('assets/lotties/empty_box.json'),
+                            const Text('You have no bought tickets'),
+                          ],
+                        ),
+                      );
                     }
                     final docs =
                         snapshot.data!.docs.map((e) => e.data()).toList();

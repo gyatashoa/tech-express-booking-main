@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LocationSelection extends SearchDelegate<String> {
   List<String> locations;
@@ -29,8 +30,16 @@ class LocationSelection extends SearchDelegate<String> {
     var results =
         locations.where((element) => element.contains(query)).toList();
     if (results.isEmpty) {
-      //TODO Will implement a location animation here
-      return const Text('No location found with the given name');
+      return Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Lottie.asset('assets/lotties/no_location.json'),
+              const Text('No location found with the given name'),
+            ],
+          ),
+        ),
+      );
     }
     return ListView.builder(
         itemCount: results.length,
@@ -47,8 +56,16 @@ class LocationSelection extends SearchDelegate<String> {
         .where((element) => element.toLowerCase().contains(query.toLowerCase()))
         .toList();
     if (results.isEmpty) {
-      //TODO Will implement a location animation here
-      return const Text('No location found with the given name');
+      return Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Lottie.asset('assets/lotties/no_location.json'),
+              const Text('No location found with the given name'),
+            ],
+          ),
+        ),
+      );
     }
     return ListView.builder(
         physics: const BouncingScrollPhysics(),
