@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_express_app/Models/bus_type.dart';
+import 'package:tech_express_app/Models/status.dart';
 
 class TicketModel {
   final String id;
@@ -13,6 +14,8 @@ class TicketModel {
   final String from;
   final int seatNumber;
   final DateTime createdAt;
+  final TicketStatus ticketStatus;
+  final DateTime? timeScanned;
 
   TicketModel(
       {required this.id,
@@ -24,6 +27,8 @@ class TicketModel {
       required this.price,
       required this.to,
       required this.from,
+      required this.ticketStatus,
+      required this.timeScanned,
       required this.seatNumber,
       required this.createdAt});
 
@@ -36,11 +41,16 @@ class TicketModel {
         date = (data['date'] as Timestamp).toDate(),
         price = (data['price']),
         to = (data['to']),
+        timeScanned = data['timeScanned'] == null
+            ? null
+            : (data['timeScanned'] as Timestamp).toDate(),
+        ticketStatus = _getTicketStatus(data['ticketStatus'] ?? 0),
         from = (data['from']),
         seatNumber = (data['seatNumber']),
         createdAt = (data['date'] as Timestamp).toDate();
 
   static BusType _getBusType(int index) => BusType.values[index];
+  static TicketStatus _getTicketStatus(int index) => TicketStatus.values[index];
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -51,6 +61,8 @@ class TicketModel {
         'date': Timestamp.fromDate(date),
         'price': price,
         'to': to,
+        'ticketStatus': ticketStatus.index,
+        'timeScanned': null,
         'from': from,
         'seatNumber': seatNumber,
         'createdAt': FieldValue.serverTimestamp()

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tech_express_app/Models/bus_type.dart';
 import 'package:tech_express_app/Models/location.dart';
 import 'package:tech_express_app/Models/predefined_trip.dart';
+import 'package:tech_express_app/Models/status.dart';
 import 'package:tech_express_app/Models/ticket_model.dart';
 import 'package:tech_express_app/data/location.dart';
 import 'package:tech_express_app/utils/price_computation.dart';
@@ -54,7 +55,9 @@ class _TripsBookingState extends State<TripsBooking> {
           price: total,
           seatNumber: int.parse(bookSeat.text),
           userId: FirebaseAuth.instance.currentUser!.uid,
-          userName: FirebaseAuth.instance.currentUser!.displayName!);
+          userName: FirebaseAuth.instance.currentUser!.displayName!,
+          ticketStatus: TicketStatus.NOT_SCANNED,
+          timeScanned: null);
       showModalBottomSheet(
           context: context,
           builder: (_) => PaymentMethodWidget(
