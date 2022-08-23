@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tech_express_app/data/predefined_trips_data.dart';
+import 'package:tech_express_app/home/booking_details.dart';
 import 'package:tech_express_app/widget/available_buses.dart';
 
 import '../utils/constants.dart';
@@ -55,13 +56,13 @@ class Mainpage extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 15.0, top: 13),
                             child: GestureDetector(
                               onTap: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //         const TripTicketPage(),
-                                //   ),
-                                // );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const BookingDetails(),
+                                  ),
+                                );
                               },
                               child: Container(
                                 // height: 38,
