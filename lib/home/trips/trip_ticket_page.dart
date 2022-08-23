@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tech_express_app/Models/ticket_model.dart';
+import '../../Models/status.dart';
 import '../../utils/constants.dart';
 
 class TripTicketPage extends StatelessWidget {
@@ -213,7 +214,38 @@ class TripTicketPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    RichText(
+                        text: TextSpan(
+                            text: 'TICKET STATUS: ',
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                            children: [
+                          TextSpan(
+                              text: ticketModel.ticketStatus.value,
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.normal))
+                        ])),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    RichText(
+                        text: TextSpan(
+                            text: 'TIME SCANNED: ',
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                            children: [
+                          TextSpan(
+                              text: ticketModel.timeScanned?.format ?? '-',
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.normal))
+                        ])),
                     const Divider(),
                     TextButton(
                         style: TextButton.styleFrom(backgroundColor: deepGreen),
@@ -308,5 +340,16 @@ class TripTicketPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension on DateTime {
+  String get format {
+    int _hour = TimeOfDay.fromDateTime(this).hourOfPeriod;
+    String _min = TimeOfDay.fromDateTime(this).minute < 10
+        ? '0${TimeOfDay.fromDateTime(this).minute}'
+        : '${TimeOfDay.fromDateTime(this).minute}';
+    String _am_or_pm = TimeOfDay.fromDateTime(this).period.name;
+    return '$day/${month < 10 ? '0$month' : month}/$year, $_hour:$_min $_am_or_pm';
   }
 }
