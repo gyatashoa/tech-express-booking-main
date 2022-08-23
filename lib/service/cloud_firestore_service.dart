@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_express_app/service/sms_api_service.dart';
 import 'package:uuid/uuid.dart';
 
 import '../Models/ticket_model.dart';
@@ -19,6 +20,11 @@ class CloudFirestoreService {
           .collection(ticketsCollection)
           .doc(ticketModel.id)
           .set(ticketModel.toJson());
+      SmsApiService.instance.sendSmsToUser(
+          phoneNumber: ticketModel.phoneNumber,
+          name: ticketModel.userName,
+          ticketId: ticketModel.id,
+          price: ticketModel.price);
     } on Exception {
       return 'Error booking ticket';
     }
