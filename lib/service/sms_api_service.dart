@@ -18,7 +18,7 @@ class SmsApiService {
       required double price}) async {
     late String res;
     if (phoneNumber.startsWith('0')) {
-      res = phoneNumber.substring(1).padLeft(13, '+233');
+      res = '+233${phoneNumber.substring(1)}';
     } else {
       res = phoneNumber;
     }
