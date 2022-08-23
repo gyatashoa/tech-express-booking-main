@@ -56,6 +56,7 @@ class _TripsBookingState extends State<TripsBooking> {
           seatNumber: int.parse(bookSeat.text),
           userId: FirebaseAuth.instance.currentUser!.uid,
           userName: FirebaseAuth.instance.currentUser!.displayName!,
+          phoneNumber: FirebaseAuth.instance.currentUser!.photoURL!,
           ticketStatus: TicketStatus.NOT_SCANNED,
           timeScanned: null);
       showModalBottomSheet(
