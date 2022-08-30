@@ -11,6 +11,7 @@ import 'package:tech_express_app/data/location.dart';
 import 'package:tech_express_app/service/cloud_firestore_service.dart';
 import 'package:tech_express_app/utils/price_computation.dart';
 import 'package:tech_express_app/utils/seat_check_utils.dart';
+import 'package:tech_express_app/utils/seat_dialog.dart';
 import 'package:tech_express_app/utils/show_error_snackbar.dart';
 import 'package:tech_express_app/widget/comfort_chip.dart';
 import 'package:tech_express_app/widget/location_selection_widget.dart';
@@ -40,8 +41,6 @@ class _TripsBookingState extends State<TripsBooking> {
   late DateTime date;
   late List<BusType> buses;
   String? arrivalDepTime;
-  bool? _isSeatAvailable;
-  late bool _isCheckingSeat;
 
   void _settingModalBottomSheet() {
     String? res = checkForm();
@@ -68,16 +67,7 @@ class _TripsBookingState extends State<TripsBooking> {
               ));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Row(
-      children: [
-        const Icon(
-          Icons.error,
-          color: Colors.red,
-        ),
-        Text(res)
-      ],
-    )));
+    showErrorSnackbar(context, res);
   }
 
   String? checkForm() {
@@ -86,10 +76,9 @@ class _TripsBookingState extends State<TripsBooking> {
     if (arrivalDepTime == null) {
       return 'Please provide an arrival-departure time';
     }
-    if (_isSeatAvailable == null || !(_isSeatAvailable!)) {
-      return 'Please provide a valid seat number';
+    if (bookSeat.text.isEmpty) {
+      return 'Please select a seat number to proceed';
     }
-    if (_isCheckingSeat) return 'Please wait while we check seat availability';
     return null;
   }
 
@@ -97,13 +86,14 @@ class _TripsBookingState extends State<TripsBooking> {
     setState(() {
       currentBusType = value;
     });
-    _onSeatValueChanged(bookSeat.text);
+    bookSeat.text = '';
   }
 
   void _onChangeTime() async {
     String? res = await showModalBottomSheet(
         context: context, builder: (_) => const TimeSelectionWidget());
     if (res == null) return;
+    bookSeat.text = '';
     setState(() {
       arrivalDepTime = res;
     });
@@ -116,7 +106,6 @@ class _TripsBookingState extends State<TripsBooking> {
     buses = BusType.values;
     currentBusType = buses.first;
     bookSeat = TextEditingController(text: '');
-    _isCheckingSeat = false;
     total = 0;
     if (widget.predefinedTrip != null) {
       toLocation = widget.predefinedTrip?.to;
@@ -143,6 +132,7 @@ class _TripsBookingState extends State<TripsBooking> {
           );
         });
     if (result == null) return;
+    bookSeat.text = '';
     setState(() {
       date = result;
     });
@@ -157,6 +147,7 @@ class _TripsBookingState extends State<TripsBooking> {
       String? result = await showSearch(
           context: context, delegate: LocationSelection(locations: data));
       if (result == null) return;
+      bookSeat.text = '';
       setState(() {
         fromLocation = result;
         total = computePrice(toLocation, fromLocation);
@@ -170,67 +161,33 @@ class _TripsBookingState extends State<TripsBooking> {
     String? result = await showSearch(
         context: context, delegate: LocationSelection(locations: data));
     if (result == null) return;
+    bookSeat.text = '';
     setState(() {
       toLocation = result;
       total = computePrice(toLocation, fromLocation);
     });
   }
 
-  String? checkForSeatValidity(String value) {
-    int? res = int.tryParse(value);
-    if (res == null) return 'Please enter a number';
-    if (res < 1) return 'Enter a valid seat number';
-    if (res > currentBusType.maxCapacity) return 'Seat number out of range';
-    return null;
-  }
-
-  Future checkSeatAvailablity() async {
-    return CloudFirestoreService.instance.checkForSeatAvailability(
-        int.parse(bookSeat.text),
-        currentBusType,
-        toLocation,
-        fromLocation,
-        arrivalDepTime,
-        date);
-  }
-
-  _onSeatValueChanged(String value) async {
-    String? res = checkForSeatValidity(value);
-    if (res != null) {
-      setState(() {
-        _isSeatAvailable = false;
-      });
-      showErrorSnackbar(context, res);
-      return;
+  void onSelectSeat() async {
+    if (toLocation == null) {
+      return showErrorSnackbar(context, 'Please selection your location');
     }
-    setState(() {
-      _isCheckingSeat = true;
-    });
-    var result = await checkSeatAvailablity();
-    setState(() {
-      _isCheckingSeat = false;
-    });
-    if (result is String) {
-      showErrorSnackbar(context, result);
-      return;
+    if (fromLocation == null) {
+      return showErrorSnackbar(context, 'Please selection your destination');
     }
-    _isSeatAvailable = result;
-
-    if (!(_isSeatAvailable!)) {
-      showErrorSnackbar(context, 'Seat has already been taken');
-      return;
+    if (arrivalDepTime == null) {
+      return showErrorSnackbar(context, 'Please selection your arrival time');
     }
-    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(seconds: 1),
-        content: Row(
-          children: const [
-            Icon(
-              Icons.error,
-              color: Colors.green,
-            ),
-            Text('Seat number is available')
-          ],
-        )));
+    int? res = await showDialog(
+        context: context,
+        builder: (_) => SeatDialog(
+            selectedDate: date,
+            to: toLocation!,
+            from: fromLocation!,
+            busType: currentBusType,
+            arrivalTime: arrivalDepTime!));
+    if (res == null) return;
+    bookSeat.text = res.toString();
   }
 
   @override
@@ -446,9 +403,9 @@ class _TripsBookingState extends State<TripsBooking> {
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: TextFormField(
                             controller: bookSeat,
+                            enabled: false,
                             textInputAction: TextInputAction.none,
                             keyboardType: TextInputType.number,
-                            onChanged: _onSeatValueChanged,
                             decoration: const InputDecoration(
                               hintText: "No seat selected",
                               hintStyle: TextStyle(
@@ -473,8 +430,8 @@ class _TripsBookingState extends State<TripsBooking> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: SeatCheckWidget(
-                            isLoading: _isCheckingSeat,
-                            isSeatAvailable: _isSeatAvailable)),
+                          onTap: onSelectSeat,
+                        )),
                   ],
                 ),
                 const Padding(
