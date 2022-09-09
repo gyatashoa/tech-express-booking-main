@@ -69,14 +69,18 @@ class _PinDialogState extends State<PinDialog> {
         ),
       ),
       actions: [
-        FlatButton(
-          textColor: const Color(0xFF6200EE),
+        TextButton(
           onPressed: _onConfirmPin,
           child: _isLoading
               ? const CircularProgressIndicator(
                   color: deepGreen,
                 )
-              : const Text('Send Code'),
+              : const Text(
+                  'Send Code',
+                  style: TextStyle(
+                    color: Color(0xFF6200EE),
+                  ),
+                ),
         ),
       ],
     );

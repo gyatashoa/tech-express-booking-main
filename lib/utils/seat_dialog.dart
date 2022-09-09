@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tech_express_app/Models/bus_type.dart';
@@ -23,6 +24,7 @@ class SeatDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final devSize = MediaQuery.of(context).size;
     return AlertDialog(
       title: const Text('Available Seats'),
       content: StreamBuilder<QuerySnapshot<TicketModel>>(
@@ -38,62 +40,149 @@ class SeatDialog extends StatelessWidget {
             if (model.hasData && model.data != null) {
               var docs = model.data!.docs.map((e) => e.data()).toList();
               List<int> occupiedSeats = seatsByDate(docs, selectedDate);
-              return Scrollbar(
-                thickness: 1.8,
-                child: GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: busType.maxCapacity,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3),
-                    itemBuilder: (_, i) => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: InkWell(
-                            onTap: () {
-                              bool selected = occupiedSeats.contains(i + 1);
-                              if (selected) {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        "Please seat has already been selected",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 1,
-                                    // backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                                return;
-                              }
+              // return Container();
 
-                              Navigator.pop(context, i + 1);
-                            },
-                            child: CircleAvatar(
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: CircleAvatar(
-                                          backgroundColor:
-                                              Colors.green.shade700,
-                                          radius: 10,
-                                          child: Text('${i + 1}'))),
-                                  const Center(
-                                      child: Icon(Icons.event_seat_sharp)),
-                                ],
-                              ),
-                              // child:
-                              backgroundColor: occupiedSeats.contains(i + 1)
-                                  ? Colors.red
-                                  : Colors.green,
-                            ),
-                          ),
-                        )),
+              return SizedBox(
+                height: devSize.height * .7,
+                width: devSize.width,
+                child: Scrollbar(
+                  thickness: 1.8,
+                  child: GridView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: busType.maxCapacity,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          // crossAxisSpacing: 20,
+                          // mainAxisSpacing: 6,
+                          crossAxisCount: busType.crossAxisCount),
+                      itemBuilder: (_, i) => Builder(builder: (context) {
+                            return _SeatWidget(
+                                busType: busType,
+                                occupiedSeats: occupiedSeats,
+                                i: i);
+                          })),
+                ),
               );
               // return Container();
             }
 
             return Container();
           }),
+    );
+  }
+}
+
+class _SeatWidget extends StatelessWidget {
+  const _SeatWidget(
+      {super.key,
+      required this.occupiedSeats,
+      required this.i,
+      required this.busType});
+  final List<int> occupiedSeats;
+  final int i;
+  final BusType busType;
+
+  @override
+  Widget build(BuildContext context) {
+    final devSize = MediaQuery.of(context).size;
+    return InkWell(
+      onTap: () {
+        bool selected = occupiedSeats.contains(i + 1);
+        if (selected) {
+          Fluttertoast.showToast(
+              msg: "Please seat has already been selected",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              // backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+          return;
+        }
+
+        Navigator.pop(context, i + 1);
+      },
+      // child: Padding(
+      // padding: EdgeInsets.only(left: (i + 1) % 3 == 0 ? 20 : 0),
+      child: Builder(builder: (context) {
+        if (busType == BusType.STC || busType == BusType.VIP) {
+          return Row(
+            children: [
+              SizedBox(
+                width: (i + 1) % 3 == 0 ? devSize.width * 0.05 : 0,
+
+                // child: Divider(),
+              ),
+              Container(
+                height: double.infinity,
+                width: devSize.width * 0.15,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      occupiedSeats.contains(i + 1) ? Colors.red : Colors.green,
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                            backgroundColor: Colors.green.shade700,
+                            radius: 10,
+                            child: Text('${i + 1}'))),
+                    const Center(
+                        child: Icon(
+                      Icons.event_seat_sharp,
+                      color: Colors.white,
+                    )),
+                  ],
+                ),
+                // child:
+              ),
+            ],
+          );
+        }
+        if (busType == BusType.VVIP || busType == BusType.FORD) {
+          return Row(
+            children: [
+              SizedBox(
+                width: (i + 1).isIn ? devSize.width * 0.04 : 0,
+                // child: Divider(),
+              ),
+              Container(
+                height: double.infinity,
+                width: devSize.width * 0.12,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      occupiedSeats.contains(i + 1) ? Colors.red : Colors.green,
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                            backgroundColor: Colors.green.shade700,
+                            radius: 10,
+                            child: Text('${i + 1}'))),
+                    const Center(
+                        child: Icon(
+                      Icons.event_seat_sharp,
+                      color: Colors.white,
+                    )),
+                  ],
+                ),
+                // child:
+              ),
+              // SizedBox(
+              //   width: (i + 1).isInEven ? devSize.width * 0.04 : 0,
+              //   // child: Divider(),
+              // ),
+            ],
+          );
+        }
+        return Container();
+      }),
     );
   }
 }
@@ -107,4 +196,90 @@ List<int> seatsByDate(List<TicketModel> tickets, DateTime selectedDate) =>
 extension on DateTime {
   bool isEqual(DateTime other) =>
       (day == other.day) && (month == other.month) && (year == other.year);
+}
+
+extension on int {
+  List<T> map<T extends Widget>(T Function(int i) func) {
+    List<T> items = [];
+    for (int i = 0; i < this; i++) {
+      items.add(func(i));
+    }
+    return items;
+  }
+
+  bool get isIn {
+    switch (this) {
+      case 3:
+        return true;
+
+      case 7:
+        return true;
+
+      case 11:
+        return true;
+
+      case 15:
+        return true;
+
+      case 19:
+        return true;
+
+      case 23:
+        return true;
+      case 27:
+        return true;
+
+      case 31:
+        return true;
+
+      case 35:
+        return true;
+
+      case 39:
+        return true;
+
+      case 43:
+        return true;
+      default:
+    }
+    return false;
+  }
+
+  bool get isInEven {
+    switch (this) {
+      case 2:
+        return true;
+
+      case 6:
+        return true;
+
+      case 10:
+        return true;
+
+      case 14:
+        return true;
+
+      case 18:
+        return true;
+
+      case 22:
+        return true;
+      case 26:
+        return true;
+
+      case 30:
+        return true;
+
+      case 34:
+        return true;
+
+      case 38:
+        return true;
+
+      case 42:
+        return true;
+      default:
+    }
+    return false;
+  }
 }
