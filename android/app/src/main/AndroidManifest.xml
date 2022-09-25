@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tech_express_app">
    <application
-        android:label="tech_express_app"
+        android:label="Busway"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
