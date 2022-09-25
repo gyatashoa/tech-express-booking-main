@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:tech_express_app/home/homepage.dart';
 import 'package:tech_express_app/onboarding_screen/onboarding_page.dart';
 import 'package:tech_express_app/utils/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp();
   bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
   runApp(MyApp(isLoggedIn: isLoggedIn));
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
