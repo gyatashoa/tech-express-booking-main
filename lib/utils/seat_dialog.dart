@@ -26,7 +26,49 @@ class SeatDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final devSize = MediaQuery.of(context).size;
     return AlertDialog(
-      title: const Text('Available Seats'),
+      title: Column(
+        children: [
+          const Text('Available Seats'),
+          const SizedBox(
+            height: 5,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  CircleAvatar(
+                    radius: 7,
+                    backgroundColor: Colors.green,
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Text(
+                    'Available seats',
+                    style: TextStyle(fontSize: 12),
+                  )
+                ],
+              ),
+              Row(
+                children: const [
+                  CircleAvatar(
+                    radius: 7,
+                    backgroundColor: Colors.red,
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Text(
+                    'Occupied seats',
+                    style: TextStyle(fontSize: 12),
+                  )
+                ],
+              )
+            ],
+          )
+        ],
+      ),
       content: StreamBuilder<QuerySnapshot<TicketModel>>(
           stream: CloudFirestoreService.instance
               .getOccupiedSeats(busType, to, from, arrivalTime, selectedDate),
