@@ -135,7 +135,7 @@ class Mainpage extends StatelessWidget {
                       ),
                     )),
               ),
-              const AvailableBuses(),
+              // const AvailableBuses(),
             ],
           ),
         ),
